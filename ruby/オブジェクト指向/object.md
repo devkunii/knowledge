@@ -218,6 +218,41 @@ end
 * スーパークラスの同名メソッドを呼び出す場合は、`super`を使う
   →任意のメソッドでも実行できる。カッコと引数を付けずに、`super`とすると、メソッドが受け取った引数を **そのまま** スーパークラスの同名メソッドに渡して実行する
 
+※Silverで間違えている！！
+
+例)
+### 以下のコードを実行するとどうなりますか
+
+```ruby
+>> class Hoge
+>>   attr_reader :message
+>>   def initialize
+>>     @message = "Hello"
+>>   end
+>> end
+=> :initialize
+>>
+?> class Piyo < Hoge
+>>   def initialize
+>>     @message = "Hi"
+>>     super
+>>   end
+>> end
+=> :initialize
+>>
+?> puts Piyo.new.message
+Hello
+=> nil
+```
+
+#### 解説
+
+1. `Piyo`クラス：インスタンス化される(`initialize`メソッド)。`@message`に`"Hi"`の文字を格納した後に、`super`メソッドを呼び出す。
+
+2. `Hoge`クラス：`Piyo`のスーパークラス。`initialize`メソッドで`@message`に`"Hello"`を代入している。
+
+* `super`：メソッドが受け取った引数を、 **そのまま** スーパークラスの同名メソッドに渡して実行する。(`()`と引数を付けない場合)
+
 ***
 
 ### 4-2.インスタンスメソッド
