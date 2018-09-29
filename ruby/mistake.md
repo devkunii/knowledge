@@ -218,28 +218,6 @@ Array
 
 ***
 
-### 次のコードを実行するとどうなりますか
-
-* メソッドと変数の探索順位は変数が先です。
-
-```ruby
->> hoge = 0
-=> 0
->> def hoge
->>   x = 0
->>   5.times do |i|
-?>     x += 1
->>   end
->>   x
->> end
-=> :hoge
->> puts hoge
-0
-=> nil
-```
-
-***
-
 ### Hashクラスについて適切な記述を選びなさい（複数選択）
 
 * `member?`：ハッシュにキーが存在する場合に`true`(`has_key?`、`include?`、`key?`メソッドも同様)
@@ -2847,3 +2825,33 @@ E. 0x10
 ```
 
 ***
+
+### 次のコードを実行するとどうなりますか
+
+`Numeric#step(limit, step)`は`self`から`step`ずつ加算し、`limit`までをブロックに渡します。
+
+問題の1.`step(5,1)`は「1から1ずつ加算し、5までの数値」という意味になります。
+
+```ruby
+def hoge
+  x = 0
+  1.step(5,1) do |i|
+    x += 1
+  end
+  puts x
+end
+hoge
+
+# 解答
+>> def hoge
+>>   x = 0
+>>   1.step(5,1) do |i|
+?>     x += 1
+>>   end
+>>   puts x
+>> end
+=> :hoge
+>> hoge
+5
+=> nil
+```

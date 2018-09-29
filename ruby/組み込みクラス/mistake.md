@@ -326,36 +326,6 @@ ArgumentError: wrong number of arguments (given 2, expected 1)
 
 ***
 
-### 次のプログラムを実行するとどうなりますか
-
-* `Enumerable#select`：ブロックの戻り値がtrueになる要素を配列にして返します。レシーバーをすべて走査して繰り返しを終了します。
-
-配列の長さは10ですので、ブロックの戻り値がtrueかを問わず10が表示されます。
-
-```ruby
->> $val = 0
-=> 0
->>
-?> class Count
->>   def self.up
->>     $val = $val + 1
->>     $val == 3 ? true : false
->>   end
->> end
-=> :up
->>
-?> [*1..10].select do   # *1で、配列として展開
-?>   Count.up
->> end
-=> [3]
->>
-?> p $val
-10
-=> 10
-```
-
-***
-
 ### `KeyError`と`StopIteration`を捕捉するプログラムを選択肢から選んでください。
 
 複数の例外クラスを捕捉するには代表的なものは3つです。
@@ -388,52 +358,6 @@ begin
 rescue *[KeyError, StopIteration]
 
 end
-```
-
-***
-
-### 次のプログラムを実行するとどうなりますか
-
-`Enumerable#any?`はブロックの戻り値が`true`になると繰り返しをその時点で止めます。
-繰り返しが止まるのは3回目の繰り返し、つまり`$val`が3になった時点です。
-
-```ruby
-# 問題
-$val = 0
-
-class Count
-  def self.up
-    $val = $val + 1
-    $val == 3 ? true : false
-  end
-end
-
-[*1..10].any? do
-  Count.up
-end
-
-p $val
-
-# 解答
->> $val = 0
-=> 0
->>
-?> class Count
->>   def self.up
->>     $val = $val + 1
->>     $val == 3 ? true : false
->>   end
->> end
-=> :up
->>
-?> [*1..10].any? do
-?>   Count.up
->> end
-=> true
->>
-?> p $val
-3
-=> 3
 ```
 
 ***
@@ -483,118 +407,6 @@ p arr
 ?>  [2, 4]
 >> ].transpose
 => [[1, 1, 2, 2], [3, 4, 3, 4]]
-```
-
-***
-
-### 以下の実行結果として正しいものを選択しなさい。
-
-```ruby
-# 問題
-p [1, 2, 3].inject{|x, y| x + y ** 2} rescue p $!
-p [1, 2, 3].inject(0){|x, y| x + y ** 2} rescue p $!
-p [1, 2, 3].inject([]){|x, y| x << y ** 2} rescue p $!
-p [1, 2, 3].inject do|x, y| x + y ** 2 end rescue p $!
-
-# 解答
->> p [1, 2, 3].inject{|x, y| x + y ** 2} rescue p $!
-14
-=> 14
->> p [1, 2, 3].inject(0){|x, y| x + y ** 2} rescue p $!
-14
-=> 14
->> p [1, 2, 3].inject([]){|x, y| x << y ** 2} rescue p $!
-[1, 4, 9]
-=> [1, 4, 9]
->> p [1, 2, 3].inject do|x, y| x + y ** 2 end rescue p $!
-#<LocalJumpError: no block given>
-=> #<LocalJumpError: no block given>
-```
-
-#### 解説
-
-* `Enumerable#inject`：ブロックを使用して繰り返し計算を行います。自身のたたみこみ演算を行う(初期値と自身の要素を順に組み合わせて結果を返す)
-
-  * 引数を省略した場合は、要素1がブロック引数の1番目に渡されます。
-
-  * 引数を指定した場合は、その値が初期値になります。
-
-  * ブロック引数の1番目は前回の戻り値が渡されます。初回は、初期値が渡されます。
-
-  * ブロック引数の2番目は要素が順番に渡されます
-
-```ruby
-# injectメソッドを使用しない場合
->> sum = 0
-=> 0
->> (1..10).each {|i| sum += i }
-=> 1..10
->> puts sum
-55
-=> nil
-
-# injectメソッド使用時
->> (1..10).inject(0) {|sum, i| sum + i }
-=> 55
-
-# injectメソッド使用時(引数なし)
->> (1..10).inject {|sum, i| sum + i }
-=> 55
-```
-
-#### 一行目
-
-```ruby
->> p [1, 2, 3].inject{|x, y| x + y ** 2} rescue p $!
-14
-=> 14
-
-# 解説
-1 = 0 + 1 ** 2  # 0番目の1の二乗
-5 = 1 + 2 ** 2  # 1(+1)番目の2の二乗
-14 = 5 + 3 ** 2
-```
-
-#### 二行目
-
-```ruby
->> p [1, 2, 3].inject(0){|x, y| x + y ** 2} rescue p $!
-14
-=> 14
-
-# 解説
-5 = 1 + 2 ** 2   # 一行目の2列目から始まる(初期値指定済みなので)
-14 = 5 + 3 ** 2
-```
-
-#### 三行目
-
-```ruby
->> p [1, 2, 3].inject([]){|x, y| x << y ** 2} rescue p $!
-[1, 4, 9]
-=> [1, 4, 9]
-
-# 解説
-[1] = [] << 1 ** 2
-[1, 4] = [1] << 2 ** 2
-[1, 4, 9] = [1, 4] << 3 ** 2
-```
-
-#### 四行目
-
-`[1, 2, 3].inject`までが`p`メソッドの引数となるため、`p`メソッドへブロックが不正に渡されるため、エラーとなります。
-
-```ruby
-p([1, 2, 3].inject) do|x, y|
-  x + y ** 2
-end rescue p $!
-
-# 解説
->> p([1, 2, 3].inject) do|x, y|
-?>   x + y ** 2
->> end rescue p $!
-#<LocalJumpError: no block given>
-=> #<LocalJumpError: no block given>
 ```
 
 ***
@@ -1686,33 +1498,6 @@ p h
 
 ***
 
-### 学習マラソンで間違えた問題
-
-```ruby
->> p (1..10).lazy.map{|num|
-?>   num * 2
->> }.take(3).inject(0, &:+)
-12
-=> 12
-
-# 解説
-p (1..10).lazy.map{|num| num * 2 }.take(3).inject(0, &:+) # 2+4+6=12
-
-# 例1
->> p (1..10).map{|num| num * 2 }.inject(0, &:+)
-110
-=> 110
-
-# 例2
->> p (1..10).map{|num| num * 2 }
-[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-=> [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-
-# 例3
->> p (1..10).lazy.map{|num| num * 2 }.take(3)
-#<Enumerator::Lazy: #<Enumerator::Lazy: #<Enumerator::Lazy: 1..10>:map>:take(3)>
-=> #<Enumerator::Lazy: #<Enumerator::Lazy: #<Enumerator::Lazy: 1..10>:map>:take(3)>
-```
 
 ```ruby
 while not DATA.eof?
@@ -2016,36 +1801,6 @@ p "foo" * 2 **2
 File.open("foo.txt") do |io|
   io.write(Time.now.strftime("%Y/%m/%d"))
 end
-```
-
-***
-
-### 以下のコードを実行した時の正しい出力結果を1つ選択してください。
-
-
-inject (Enumerable)は前回のブロックの戻り値をブロックに渡して繰り返し実行します。
-
-例題では条件演算子を使い、２つの整数値を比較しより大きな値を取り出しそれをブロックに渡しています。
-
-条件演算子(文法） 式1 ? 式1が真だった場合の値 : 式1が偽だった場合の値
-
-```ruby
-numbers = [3,89,40,39,29,10,50,59,69]
-num = numbers.inject do |i,j|
-  i > j ? i : j
-end
-p num
-
-# 解答
->> numbers = [3,89,40,39,29,10,50,59,69]
-=> [3, 89, 40, 39, 29, 10, 50, 59, 69]
->> num = numbers.inject do |i,j|
-?>   i > j ? i : j
->> end
-=> 89
->> p num
-89
-=> 89
 ```
 
 ***
