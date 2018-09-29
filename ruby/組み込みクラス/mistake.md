@@ -19,21 +19,6 @@ p container.length
 
 ***
 
-### 次のプログラムを実行するとどうなりますか
-
-```ruby
->> raise ['Error Message']
-TypeError: exception class/object expected
-```
-
-`StandardError`を継承しないクラスのインスタンスを`raise`メソッドの引数に指定すると、
-`TypeError`が発生し、メッセージが表示されます。
-
-* `TypeError`：メソッドの引数に期待される型ではないオブジェクトや、期待される振る舞いを持たないオブジェクトが渡された時に発生します。
-→`StandardError`の下のクラス
-
-***
-
 ### 次のコードを実行するとどうなりますか
 
 ```ruby
@@ -940,21 +925,6 @@ v2 = v1 || (raise RuntimeError)
 
 ***
 
-### 次のコードを実行するとどうなりますか
-
-`rescue`に処理対象の例外クラスの指定がない場合は、`StandardError`のサブクラス全てを捕捉します。
-Rubyの組み込み例外は全て`StandardError`のサブクラスです。
-
-```ruby
->> begin
-?>   raise StandardError.new
->> rescue => e
->>   puts e.class
->> end
-StandardError
-=> nil
-```
-
 ***
 
 ### 次のコードを実行するとどうなりますか
@@ -1716,65 +1686,6 @@ p h
 
 ***
 
-### 期待した出力結果になるようにXXXXに適切なコードを選べ
-
-```ruby
-d = Time.new(2015, 1, 5)
-puts d.strftime(XXXX)
-
-# 出力結果
-01/05/15
-
-# 解答
->> d = Time.new(2015, 1, 5)
-=> 2015-01-05 00:00:00 +0900
->> puts d.strftime("%x")
-01/05/15
-=> nil
-```
-
-* `%x`：日付(%m/%d/%y)
-
-* `%m`：月を表す数字(01-12)
-
-* `%M`：分(00-59)
-
-* `%d`：日(01-31)
-
-* `%D`：日付(%m/%d/%y)
-
-* `%y`：西暦の下2桁(00-99)
-
-* `%Y`：西暦を表す数(9999)
-
-
-```ruby
->> d = Time.new(2015, 1, 5)
-=> 2015-01-05 00:00:00 +0900
-
-# "x"
->> puts d.strftime("%x")
-01/05/15
-=> nil
-
-# "%m/%d/%Y"
->> puts d.strftime("%m/%d/%Y")
-01/05/2015
-=> nil
-
-# "%m/%D/%y"
->> puts d.strftime("%m/%D/%y")
-01/01/05/15/15
-=> nil
-
-# "%M/%d/%y"
->> puts d.strftime("%M/%d/%y")
-00/05/15
-=> nil
-```
-
-***
-
 ### 学習マラソンで間違えた問題
 
 ```ruby
@@ -1959,22 +1870,6 @@ p M::C.new.awesome_method
 
 # 2問目
 
-```
-
-***
-
-### 以下のコードを実行した時の出力として正しいものを1つ選択してください。
-
-Timeクラスのオブジェクトに対して「+」メソッドや「-」メソッドを使って数値を加算減算できます。数値の単位は秒です。
-
-```ruby
->> t = Time.now + (60*60*24)
-=> 2018-09-29 00:07:02 +0900
-
-# 実行時の日時から24時間後(86400秒後)の日時が表示される
->> p t
-2018-09-29 00:07:02 +0900
-=> 2018-09-29 00:07:02 +0900
 ```
 
 ***
@@ -2200,55 +2095,6 @@ p numbers.detect{|x| x % 5 == 0}
 >> p numbers.detect{|x| x % 5 == 0}
 5
 => 5
-```
-
-***
-
-### 以下のコードを実行した時の出力結果として正しいものを１つ選択してください。
-
-raise関数によって明示的に例外を発生させることができます。
-
-例題ではString#ascii_only?を使いテキストにASCII文字以外が使われている場合には例外を発生させています。
-
-例外処理の基本形は問題28の解説を参照してください。
-
-```ruby
-class NonasciiError < StandardError
-end
-
-File.open("sample.txt") do |io|
-  io.each_line do |str|
-    begin
-      raise(NonasciiError, "non ascii character detected") unless str.ascii_only?
-    rescue => ex
-      puts "#{ex.message} : #{str}"
-    end
-  end
-end
-
-[sample.txtの内容]
-Ruby Association
-ルビーアソシエーション
-るびー
-Ruby on Rails
-
-# 解答
->> class NonasciiError < StandardError
->> end
-=> nil
->>
-?> File.open("sample.txt") do |io|
-?>   io.each_line do |str|
-?>     begin
-?>       raise(NonasciiError, "non ascii character detected") unless str.ascii_only?
->>     rescue => ex
->>       puts "#{ex.message} : #{str}"
->>     end
->>   end
->> end
-non ascii character detected : ルビーアソシエーション
-non ascii character detected : るびー
-=> #<File:sample.txt (closed)>
 ```
 
 ***
