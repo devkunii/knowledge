@@ -2018,52 +2018,6 @@ p M::C.new.awesome_method
 
 ***
 
-### 実行後の textfile.txt 内容になるようにXXXXに適切なコードを選べ。ただし、空ファイルは作成済みである。
-
-```ruby
-File.open('testfile.txt', XXXX) do |f|
-  f.write("recode 1\n")
-  f.seek(0, IO::SEEK_SET)
-  f.write("recode 2\n")
-end
-
-# 実行後の textfile.txt 内容
-recode 1
-recode 2
-```
-
-```ruby
-File.open('testfile.txt', "w+") do |f|
-  f.write("recode 1\n")
-  f.seek(0, IO::SEEK_SET)
-  f.write("recode 2\n")
-end
-=> recode 2
-
-File.open('testfile.txt', "a+") do |f|
-  f.write("recode 1\n")
-  f.seek(0, IO::SEEK_SET)
-  f.write("recode 2\n")
-end
-=> recode 1
-=> recode 2
-```
-
-* `w+`
-`w+`は新規作成・読み込み + 書き込みモードで開きます。
-既にファイルが存在する場合は、空になります。
-`IO#seek`はファイルポインタを指定の位置に移動します。`IO:SEEK_SET`がファイルの先頭からの位置を指定する識別子です。
-
-よって、`recode 1`を書き込み後にファイルの先頭にファイルポインタを移動し、`recode 2`で上書きしています。
-
-※`w`も同様
-
-* `a+`
-`a+`はファイルを読み込みモード + 追記書き込みモードで開きます。
-ファイルの読み込みは、ファイルの先頭から行いますが、書き込みは、ファイルの末尾に行います。
-
-***
-
 ### 以下のコードを実行した時の出力として正しいものを1つ選択してください。
 
 Timeクラスのオブジェクトに対して「+」メソッドや「-」メソッドを使って数値を加算減算できます。数値の単位は秒です。
@@ -2404,5 +2358,3 @@ C. 012
 D. 077
 E. 0x10
 ```
-
-***

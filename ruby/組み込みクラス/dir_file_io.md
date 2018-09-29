@@ -1,4 +1,4 @@
-## 5-10.`Dir`クラス、`File`クラス、`IO`クラス
+# 5-10.`Dir`クラス、`File`クラス、`IO`クラス
 
 * `Dir`クラス：ディレクトリの移動や作成、ディレクトリ内のファイル一覧の取得など、ディレクトリを扱うクラス
 
@@ -8,9 +8,9 @@
 
 ***
 
-### 5-10-1.`Dir`クラス
+## 5-10-1.`Dir`クラス
 
-#### ディレクトリを開く、閉じる
+### ディレクトリを開く、閉じる
 
 * `open`メソッド：ディレクトリを開く。返り値は`Dir`クラスのオブジェクトで、例えば`each`メソッドでファイル一覧を取得できる
 
@@ -35,7 +35,7 @@ pydoc2
 
 ***
 
-#### 開いているディレクトリのパスの取得
+### 開いているディレクトリのパスの取得
 
 * `path`メソッド：開いているディレクトリのパスを取得
 
@@ -49,7 +49,7 @@ pydoc2
 
 ***
 
-#### カレントディレクトリの取得
+### カレントディレクトリの取得
 
 * `Dir.pwd`、`Dir.getwd`メソッド：カレントディレクトリを取得する
 
@@ -60,9 +60,9 @@ pydoc2
 
 ***
 
-#### カレントディレクトリの移動
+### カレントディレクトリの移動
 
-* `chdir`メソッド：カレントディレクトリを指定されたディレクトリに変更する。
+* `Dir.chdir`メソッド：カレントディレクトリを指定されたディレクトリに変更する。
 
 * 指定がない場合、環境変数 **HOME** や **LOGDIR** が設定されていれば、そのディレクトリに移動する
 
@@ -83,7 +83,7 @@ pydoc2
 
 ***
 
-#### ディレクトリの作成
+### ディレクトリの作成
 
 * `mkdir`メソッド：指定したパスのディレクトリを作成する。2つ目の引数にパーミッション(mode)を指定可能
 
@@ -91,7 +91,7 @@ pydoc2
 
 パーミッションがよくわからないので、省略
 
-2018/9/1o
+2018/9/10
 
 ```ruby
 >> Dir.mkdir("/tmp/foo")
@@ -102,7 +102,7 @@ pydoc2
 
 ***
 
-#### ディレクトリの削除
+### ディレクトリの削除
 
 * `rmdir`メソッド：ディレクトリを削除する
 
@@ -115,13 +115,13 @@ pydoc2
 
 ***
 
-### 5-10-2.`File`クラス
+## 5-10-2.`File`クラス
 
-#### ファイルを開いて読み込む
+### ファイルを開いて読み込む
 
 * `File.open`、`File.new`メソッド：ファイルを開く。
 
-* 引数としてファイル名だけを与えると、読み取りモードで開く。
+* 引数としてファイル名だけを与えると、読み取りモード`"r"`で開く。
 
 * ファイルが存在しない場合は、エラーが発生する。
 
@@ -140,7 +140,7 @@ pydoc2
 >> file = File.open("README.md")
 => #<File:README.md>
 >> file.read
-=> "# README\n\nThis README would normally document whatever steps are necessary to get the\napplication up and running.\n\nThings you may want to cover:\n\n* Ruby version\n\n* System dependencies\n\n* Configuration\n\n* Database creation\n\n* Database initialization\n\n* How to run the test suite\n\n* Services (job queues, cache servers, search engines, etc.)\n\n* Deployment instructions\n\n* ...\n"
+=> "# 省略"
 >> file.close
 => nil
 
@@ -150,13 +150,13 @@ pydoc2
 >> file = File.open("README.md")
 => #<File:README.md>
 >> file.read
-=> "# README\n\nThis README would normally document whatever steps are necessary to get the\napplication up and running.\n\nThings you may want to cover:\n\n* Ruby version\n\n* System dependencies\n\n* Configuration\n\n* Database creation\n\n* Database initialization\n\n* How to run the test suite\n\n* Services (job queues, cache servers, search engines, etc.)\n\n* Deployment instructions\n\n* ...\n"
+=> "# 省略"
 >> file.read.encoding
 => #<Encoding:UTF-8>
 
 # ファイルをブロックで開く
 >> File.open("README.md"){|file| file.read}
-=> "# README\n\nThis README would normally document whatever steps are necessary to get the\napplication up and running.\n\nThings you may want to cover:\n\n* Ruby version\n\n* System dependencies\n\n* Configuration\n\n* Database creation\n\n* Database initialization\n\n* How to run the test suite\n\n* Services (job queues, cache servers, search engines, etc.)\n\n* Deployment instructions\n\n* ...\n"
+=> "# 省略"
 ```
 
 ***
@@ -176,6 +176,50 @@ pydoc2
   * `"w+"`：読み書きモード。`"r+"`と同じだが、既存ファイルの場合はファイルの内容が空になる
 
   * `"a+"`：読み書きモード。ファイルの読み込み位置は先頭に、書き込み位置は常に末尾になる
+
+※Silverで間違えている
+
+```ruby
+File.open('testfile.txt', XXXX) do |f|
+  f.write("recode 1\n")
+  f.seek(0, IO::SEEK_SET)
+  f.write("recode 2\n")
+end
+
+# 実行後の textfile.txt 内容
+recode 1
+recode 2
+```
+
+```ruby
+File.open('testfile.txt', "w+") do |f|
+  f.write("recode 1\n")
+  f.seek(0, IO::SEEK_SET)
+  f.write("recode 2\n")
+end
+=> recode 2
+
+File.open('testfile.txt', "a+") do |f|
+  f.write("recode 1\n")
+  f.seek(0, IO::SEEK_SET)
+  f.write("recode 2\n")
+end
+=> recode 1
+=> recode 2
+```
+
+* `w+`
+  `w+`は新規作成・読み込み + 書き込みモードで開きます。
+  既にファイルが存在する場合は、空になります。
+  `IO#seek`はファイルポインタを指定の位置に移動します。`IO:SEEK_SET`がファイルの先頭からの位置を指定する識別子です。
+
+よって、`recode 1`を書き込み後にファイルの先頭にファイルポインタを移動し、`recode 2`で上書きしています。
+
+※`w`も同様
+
+* `a+`
+  `a+`はファイルを読み込みモード + 追記書き込みモードで開きます。
+  ファイルの読み込みは、ファイルの先頭から行いますが、書き込みは、ファイルの末尾に行います。
 
 ***
 
@@ -227,6 +271,10 @@ pydoc2
 * `File.dirname`：指定されたパスからディレクトリ名を取得する
 
 * `File.extname`：指定されたパスから拡張子を取得する
+
+```ruby
+
+```
 
 * `File.split`：指定されたパスからディレクトリ名とファイル名の配列を取得する
 
