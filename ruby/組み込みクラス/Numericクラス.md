@@ -114,11 +114,17 @@ NoMethodError: undefined method ｀&｀ for 1.23:Float
 RangeError: -1 out of char range
 ```
 
+※Silverで間違えかけている！！
+
+* 引数で与えられた`encoding`において、`self`を文字コードと見なし、それに対応する一文字からなる文字列を返す。
+
+* 指定されたエンコーディングで`self`を正しく解釈できない場合はエラーが発生する。
+
 ***
 
 #### 次の整数、前の整数を求める
 
-* `next`メソッド：(整数に対して)次の整数を返す。`succ`メソッドでもある
+* `next`メソッド：(整数に対して)次の整数を返す。`succ`メソッドでもある。`String`クラスにもある
 
 * `pred`メソッド：自身の数から-1した整数を返す
 
@@ -146,7 +152,7 @@ RangeError: -1 out of char range
 => 0
 >> 10.times {|i| sum += i}
 => 10
->> puts sum                    # なぜ45になるのかわからない
+>> puts sum                    # 1+2+3+4+5+6+7+8+9=45
 45
 => nil
 ```
@@ -165,7 +171,7 @@ RangeError: -1 out of char range
 
 #### 数値の剰余
 
-* `%`メソッド：剰余に使われる
+* `%`メソッド：剰余に使われる。`modulo`メソッドでも同様。
 
 ```ruby
 >> 10.modulo(3)

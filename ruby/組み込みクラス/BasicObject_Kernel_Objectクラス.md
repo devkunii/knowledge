@@ -84,9 +84,9 @@
 
 ### 5-3-3.オブジェクトの比較
 
-* `equal?`：オブジェクトID(object_id)を比較する
+* `equal?`：オブジェクトID(object_id)を比較する。同じ文字列だったら、`false`(オブジェクトIDが異なる為)
 
-* `eql?`：オブジェクトのハッシュ値が同じかどうかを比較
+* `eql?`：オブジェクトのハッシュ値が同じかどうかを比較。同じ文字列だったら、`true`
 
 ```ruby
 >> a = "foo"
@@ -112,7 +112,7 @@
 * `==`：オブジェクトの内容が同じかどうかを比較
 
 * 比較メソッドはクラスによって再定義されるため、結果はクラスに依存することに注意する
-  →例)`String`クラスでは、`==`メソッドは`eql?`メソッドと同じ結果を返す
+  →例)`String`クラスでは、 **`==`メソッドは`eql?`メソッドと同じ結果を返す**
 
 ```ruby
 >> a = "foo"
@@ -124,6 +124,8 @@
 >> a == b
 => true
 ```
+
+※Silverで間違えている！！
 
 ***
 
@@ -147,7 +149,7 @@
 >> a = "foo"
 => "foo"
 >> a.methods
-=> [:include?, :%, :*, :+, :to_c, :unicode_normalize, :unicode_normalize!, :unicode_normalized?, :count, :partition, :unpack, :unpack1, :sum, :next, :casecmp, :casecmp?, :insert, :bytesize, :match, :match?, :succ!, :+@, :-@, :index, :rindex, :<=>, :replace, :clear, :upto, :getbyte, :==, :===, :setbyte, :=~, :scrub, :[], :[]=, :chr, :scrub!, :dump, :byteslice, :upcase, :next!, :empty?, :eql?, :downcase, :capitalize, :swapcase, :upcase!, :downcase!, :capitalize!, :swapcase!, :hex, :oct, :split, :lines, :reverse, :chars, :codepoints, :prepend, :bytes, :concat, :<<, :freeze, :inspect, :intern, :end_with?, :crypt, :ljust, :reverse!, :chop, :scan, :gsub, :ord, :start_with?, :length, :size, :rstrip, :succ, :center, :sub, :chomp!, :sub!, :chomp, :rjust, :lstrip!, :gsub!, :chop!, :strip, :to_str, :to_sym, :rstrip!, :tr, :tr_s, :delete, :to_s, :to_i, :tr_s!, :delete!, :squeeze!, :each_line, :squeeze, :strip!, :each_codepoint, :lstrip, :slice!, :rpartition, :each_byte, :each_char, :to_f, :slice, :ascii_only?, :encoding, :force_encoding, :b, :valid_encoding?, :tr!, :encode, :encode!, :hash, :to_r, :<, :>, :<=, :>=, :between?, :clamp, :instance_of?, :kind_of?, :is_a?, :tap, :public_send, :public_method, :singleton_method, :remove_instance_variable, :define_singleton_method, :method, :instance_variable_set, :extend, :to_enum, :enum_for, :!~, :respond_to?, :object_id, :send, :display, :nil?, :class, :singleton_class, :clone, :dup, :itself, :taint, :tainted?, :untaint, :untrust, :untrusted?, :trust, :frozen?, :methods, :singleton_methods, :protected_methods, :private_methods, :public_methods, :instance_variable_get, :instance_variables, :instance_variable_defined?, :!, :!=, :__send__, :equal?, :instance_eval, :instance_exec, :__id__]
+=> [:include?, :%, ] # 省略
 ```
 
 ***
@@ -170,6 +172,37 @@
 => "hoge"
 >> b.object_id
 => 70175072614940
+```
+
+※Silverで間違えている
+
+以下のコードを実行したときの出力として適切な物を1つ選択してください。
+
+foo,barは同じ配列オブジェクトを参照しています。
+例題と同じ内容で以下のメソッドを実行すると、以下のようになります。
+
+* foo.object_id # barと同じ整数値
+
+* bar.object_id # fooと同じ整数値
+
+* baz.object_id # 上記2つとは違う整数値
+
+要するに、複製したものに追加したら、元々の方も追加される
+
+```ruby
+foo = [1,2,3]
+bar = foo
+baz = foo.dup
+
+bar[3] = 4
+p foo
+p bar
+p baz
+
+# 解答
+=> [1, 2, 3, 4]
+=> [1, 2, 3, 4]
+=> [1, 2, 3]
 ```
 
 ***
@@ -265,7 +298,7 @@ RuntimeError: can｀t modify frozen String
 >> b.hoge                  # method_missingが呼び出され、`hoge`が出力
 hoge
 => nil
->> "string".hoge           # method_missingが未定義のため、例外
+>> "string".hoge           # Stringクラスには、method_missingが未定義のため、例外
 NoMethodError: undefined method ｀hoge｀ for "string":String
 ```
 
@@ -277,7 +310,7 @@ NoMethodError: undefined method ｀hoge｀ for "string":String
   例)オブジェクトのクラス名を表示
 
 * `inspect`メソッド：オブジェクトを人間が読める形式に変換。主にデバッグ
-  例)インスタンス変数とその値まで表示
+  例)インスタンス変数とその値まで表示。標準出力の`p`で使用
 
 ```ruby
 >> a = 1.2
