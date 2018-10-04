@@ -177,6 +177,18 @@
 => 2768461.000001
 ```
 
+※Silverで間違えた
+
+```ruby
+>> t = Time.now + (60*60*24)
+=> 2018-09-29 00:07:02 +0900
+
+# 実行時の日時から24時間後(86400秒後)の日時が表示される
+>> p t
+2018-09-29 00:07:02 +0900
+=> 2018-09-29 00:07:02 +0900
+```
+
 ***
 
 ### 5-11-5.`Time`オブジェクトの変換
@@ -221,8 +233,23 @@
 => "2017年01月02日 03時04分05秒"
 ```
 
-この表は、後に画像として貼る
-2018/9/15
+※Silverで間違えている
+
+* `%x`：日付(%m/%d/%y)
+
+* `%m`：月を表す数字(01-12)
+
+* `%M`：分(00-59)
+
+* `%d`：日(01-31)
+
+* `%D`：日付(%m/%d/%y)
+
+* `%y`：西暦の下2桁(00-99)
+
+* `%Y`：西暦を表す数(9999)
+
+* `%F`：%Y-%m-%d
 
 ***
 
@@ -267,7 +294,7 @@
 
 ```ruby
 >> a = Regexp.new("abcdefg", Regexp::MULTILINE | Regexp::IGNORECASE)
-=> /abcdefg/mi
+=> /abcdefg/mi # オプションのmとi
 ```
 
 ***
@@ -275,6 +302,7 @@
 ### 5-12-2.正規表現オブジェクトでマッチングする
 
 * `match`：正規表現オブジェクトで文字列とマッチングさせる。マッチした場合には`MatchData`オブジェクトを、しなかった場合には`nil`を返す
+  →最初の部分しかマッチしない
 
 * `=~`：正規表現オブジェクトで文字列とマッチングさせる。マッチすればマッチした位置のインデックスが、しなかった場合は`nil`を返す
 
@@ -456,6 +484,42 @@
 => #<MyError: MyError>
 ```
 
+※Silverで間違えている
+
+### 以下のコードを実行した時の出力結果として正しいものを１つ選択してください。
+
+raise関数によって明示的に例外を発生させることができます。
+
+例題ではString#ascii_only?を使いテキストにASCII文字以外が使われている場合には例外を発生させています。
+
+ASCII文字は、アルファベット、数字、記号
+
+```ruby
+[sample.txtの内容]
+Ruby Association
+ルビーアソシエーション
+るびー
+Ruby on Rails
+
+# 解答
+>> class NonasciiError < StandardError
+>> end
+=> nil
+>>
+?> File.open("sample.txt") do |io|
+?>   io.each_line do |str|
+?>     begin
+?>       raise(NonasciiError, "non ascii character detected") unless str.ascii_only?
+>>     rescue => ex
+>>       puts "#{ex.message} : #{str}"
+>>     end
+>>   end
+>> end
+non ascii character detected : ルビーアソシエーション
+non ascii character detected : るびー
+=> #<File:sample.txt (closed)>
+```
+
 ***
 
 #### エラーメッセージを指定する
@@ -530,4 +594,31 @@
 => ["This is new backtrace."]
 ```
 
-***
+※Silverで間違えている
+
+`StandardError`を継承しないクラスのインスタンスを`raise`メソッドの引数に指定すると、
+`TypeError`が発生し、メッセージが表示されます。
+
+* `TypeError`：メソッドの引数に期待される型ではないオブジェクトや、期待される振る舞いを持たないオブジェクトが渡された時に発生します。
+  →`StandardError`の下のクラス
+
+```ruby
+>> raise ['Error Message']
+TypeError: exception class/object expected
+```
+
+
+`rescue`節において例外型を省略すると、`StandardError`とそのサブクラス例外を捕捉する。
+
+`TypeError`は`StandardError`のサブクラスなので、前の行の`rescue`節で処理される
+
+```ruby
+>> err = TypeError.new
+=> #<TypeError: TypeError>
+>> err.class
+=> TypeError
+>> err.class.superclass
+=> StandardError
+>> err.class.superclass.superclass
+=> Exception
+```

@@ -19,27 +19,6 @@ p container.length
 
 ***
 
-### 次のプログラムを実行するとどうなりますか
-
-```ruby
->> raise ['Error Message']
-TypeError: exception class/object expected
-```
-
-`StandardError`を継承しないクラスのインスタンスを`raise`メソッドの引数に指定すると、
-`TypeError`が発生し、メッセージが表示されます。
-
-* `TypeError`：メソッドの引数に期待される型ではないオブジェクトや、期待される振る舞いを持たないオブジェクトが渡された時に発生します。
-→`StandardError`の下のクラス
-
-***
-
-### `Hash#to_h`について
-
-Hash#to_hは2次元配列からハッシュを生成します。例えば[[1, "data 1"], [2, "data 2"]].to_hの結果は{1=>"data 1", 2=>"data 2"}になります。
-
-***
-
 ### 次のコードを実行するとどうなりますか
 
 ```ruby
@@ -69,23 +48,6 @@ Hash#to_hは2次元配列からハッシュを生成します。例えば[[1, "d
 * `&:odd?`：`Integer#odd?`メソッド(数値が奇数か判定)を、ブロックとして渡す。
 
 * `(1..5).partition(&:odd?)`：1から5の間で、奇数の配列を分割
-
-***
-
-### 次のコードを実行するとどうなりますか
-
-```ruby
->> str = "1;2:3;4"
-=> "1;2:3;4"
->> p str.split(";|:")
-["1;2:3;4"]
-=> ["1;2:3;4"]
-
-# 例
->> p str.split(/;|:/)
-["1", "2", "3", "4"]
-=> ["1", "2", "3", "4"]
-```
 
 ***
 
@@ -218,40 +180,24 @@ Array
 
 ***
 
-### Hashクラスについて適切な記述を選びなさい（複数選択）
+### 次のコードを実行するとどうなりますか
 
-* `member?`：ハッシュにキーが存在する場合に`true`(`has_key?`、`include?`、`key?`メソッドも同様)
-
-* `to_a`： **キー** と **値** の組み合わせの配列の配列を生成する
-
-* `update`：自分自身と引数で指定されたハッシュを統合する(破壊的メソッド)
-
-* `clear`：ハッシュを空にする(破壊的メソッド)
+* メソッドと変数の探索順位は変数が先です。
 
 ```ruby
->> hash = {"apple" => "grate", "banana" => "ole", "orange" => "juice"}
-=> {"apple"=>"grate", "banana"=>"ole", "orange"=>"juice"}
-
-# member?メソッド
->> p hash.member?("apple")
-true
-=> true
-
-# to_aメソッド
->> p hash.to_a
-[["apple", "grate"], ["banana", "ole"], ["orange", "juice"]]
-=> [["apple", "grate"], ["banana", "ole"], ["orange", "juice"]]
-
-# updateメソッド
->> hash.update({"grape" => "juice"})
-=> {"apple"=>"grate", "banana"=>"ole", "orange"=>"juice", "grape"=>"juice"}
-
-# clearメソッド
->> p hash.clear
-{}
-=> {}
->> hash
-=> {}
+>> hoge = 0
+=> 0
+>> def hoge
+>>   x = 0
+>>   5.times do |i|
+?>     x += 1
+>>   end
+>>   x
+>> end
+=> :hoge
+>> puts hoge
+0
+=> nil
 ```
 
 ***
@@ -269,21 +215,6 @@ Rubyではメソッド内で定数を定義することができません。
 >>   puts Y
 >> end
 SyntaxError: (irb):153: dynamic constant assignment
-```
-
-***
-
-### 次のコードを実行するとどうなりますか
-
-`Hash#invert`は **キー** と **値** を入れ替えます。
-入れ替えの結果キーが重複した場合は、後に定義された方が優先されます。
-
-```ruby
->> h = {a: 100, b: 100}
-=> {:a=>100, :b=>100}
->> puts h.invert
-{100=>:b}
-=> nil
 ```
 
 ***
@@ -363,50 +294,6 @@ EOF
 
 ***
 
-### `puts XXXX`に記述するとエラーが発生するコードはどれですか
-
-* `0xFF`:0xは16進数を表すプレフィックスです。ここでは16進数を10進数に変換された、255が表示されます。
-* `7.to_s(3)`:selfを3進数に変換した、21が表示されます。
-
-```ruby
->> puts 0xFF
-255
-=> nil
->> puts 7.to_s(3)
-21
-=> nil
-```
-
-***
-
-### 次のコードを実行するとどうなりますか
-
-`String`に`append`メソッドはありません。
-文字列を結合するには、`String<<`を用います。
-
-```ruby
->> a = "Ruby"
-=> "Ruby"
->> b = " on Rails"
-=> " on Rails"
->> a.append b
-NoMethodError: undefined method ｀append｀ for "Ruby":String
-
-# 文法を変えた場合
->> a << b
-=> "Ruby on Rails"
->> a.reverse       # 破壊的メソッドではない
-=> "sliaR no ybuR"
->> p a
-"Ruby on Rails"
-=> "Ruby on Rails"
->> p a.index("R", 1)   # 右から1番目(u)から、最初にRが見つかる場所(8番目)
-8
-=> 8
-```
-
-***
-
 ### 次のプログラムの期待値を得られるように正しいメソッドを選択肢から選んでください。
 
 * `key`：引数を１つ取り、キーを返す
@@ -435,36 +322,6 @@ ArgumentError: wrong number of arguments (given 2, expected 0)
 # []メソッド
 >> p hash.[](:price, :tax)
 ArgumentError: wrong number of arguments (given 2, expected 1)
-```
-
-***
-
-### 次のプログラムを実行するとどうなりますか
-
-* `Enumerable#select`：ブロックの戻り値がtrueになる要素を配列にして返します。レシーバーをすべて走査して繰り返しを終了します。
-
-配列の長さは10ですので、ブロックの戻り値がtrueかを問わず10が表示されます。
-
-```ruby
->> $val = 0
-=> 0
->>
-?> class Count
->>   def self.up
->>     $val = $val + 1
->>     $val == 3 ? true : false
->>   end
->> end
-=> :up
->>
-?> [*1..10].select do   # *1で、配列として展開
-?>   Count.up
->> end
-=> [3]
->>
-?> p $val
-10
-=> 10
 ```
 
 ***
@@ -501,52 +358,6 @@ begin
 rescue *[KeyError, StopIteration]
 
 end
-```
-
-***
-
-### 次のプログラムを実行するとどうなりますか
-
-`Enumerable#any?`はブロックの戻り値が`true`になると繰り返しをその時点で止めます。
-繰り返しが止まるのは3回目の繰り返し、つまり`$val`が3になった時点です。
-
-```ruby
-# 問題
-$val = 0
-
-class Count
-  def self.up
-    $val = $val + 1
-    $val == 3 ? true : false
-  end
-end
-
-[*1..10].any? do
-  Count.up
-end
-
-p $val
-
-# 解答
->> $val = 0
-=> 0
->>
-?> class Count
->>   def self.up
->>     $val = $val + 1
->>     $val == 3 ? true : false
->>   end
->> end
-=> :up
->>
-?> [*1..10].any? do
-?>   Count.up
->> end
-=> true
->>
-?> p $val
-3
-=> 3
 ```
 
 ***
@@ -596,118 +407,6 @@ p arr
 ?>  [2, 4]
 >> ].transpose
 => [[1, 1, 2, 2], [3, 4, 3, 4]]
-```
-
-***
-
-### 以下の実行結果として正しいものを選択しなさい。
-
-```ruby
-# 問題
-p [1, 2, 3].inject{|x, y| x + y ** 2} rescue p $!
-p [1, 2, 3].inject(0){|x, y| x + y ** 2} rescue p $!
-p [1, 2, 3].inject([]){|x, y| x << y ** 2} rescue p $!
-p [1, 2, 3].inject do|x, y| x + y ** 2 end rescue p $!
-
-# 解答
->> p [1, 2, 3].inject{|x, y| x + y ** 2} rescue p $!
-14
-=> 14
->> p [1, 2, 3].inject(0){|x, y| x + y ** 2} rescue p $!
-14
-=> 14
->> p [1, 2, 3].inject([]){|x, y| x << y ** 2} rescue p $!
-[1, 4, 9]
-=> [1, 4, 9]
->> p [1, 2, 3].inject do|x, y| x + y ** 2 end rescue p $!
-#<LocalJumpError: no block given>
-=> #<LocalJumpError: no block given>
-```
-
-#### 解説
-
-* `Enumerable#inject`：ブロックを使用して繰り返し計算を行います。自身のたたみこみ演算を行う(初期値と自身の要素を順に組み合わせて結果を返す)
-
-  * 引数を省略した場合は、要素1がブロック引数の1番目に渡されます。
-
-  * 引数を指定した場合は、その値が初期値になります。
-
-  * ブロック引数の1番目は前回の戻り値が渡されます。初回は、初期値が渡されます。
-
-  * ブロック引数の2番目は要素が順番に渡されます
-
-```ruby
-# injectメソッドを使用しない場合
->> sum = 0
-=> 0
->> (1..10).each {|i| sum += i }
-=> 1..10
->> puts sum
-55
-=> nil
-
-# injectメソッド使用時
->> (1..10).inject(0) {|sum, i| sum + i }
-=> 55
-
-# injectメソッド使用時(引数なし)
->> (1..10).inject {|sum, i| sum + i }
-=> 55
-```
-
-#### 一行目
-
-```ruby
->> p [1, 2, 3].inject{|x, y| x + y ** 2} rescue p $!
-14
-=> 14
-
-# 解説
-1 = 0 + 1 ** 2  # 0番目の1の二乗
-5 = 1 + 2 ** 2  # 1(+1)番目の2の二乗
-14 = 5 + 3 ** 2
-```
-
-#### 二行目
-
-```ruby
->> p [1, 2, 3].inject(0){|x, y| x + y ** 2} rescue p $!
-14
-=> 14
-
-# 解説
-5 = 1 + 2 ** 2   # 一行目の2列目から始まる(初期値指定済みなので)
-14 = 5 + 3 ** 2
-```
-
-#### 三行目
-
-```ruby
->> p [1, 2, 3].inject([]){|x, y| x << y ** 2} rescue p $!
-[1, 4, 9]
-=> [1, 4, 9]
-
-# 解説
-[1] = [] << 1 ** 2
-[1, 4] = [1] << 2 ** 2
-[1, 4, 9] = [1, 4] << 3 ** 2
-```
-
-#### 四行目
-
-`[1, 2, 3].inject`までが`p`メソッドの引数となるため、`p`メソッドへブロックが不正に渡されるため、エラーとなります。
-
-```ruby
-p([1, 2, 3].inject) do|x, y|
-  x + y ** 2
-end rescue p $!
-
-# 解説
->> p([1, 2, 3].inject) do|x, y|
-?>   x + y ** 2
->> end rescue p $!
-#<LocalJumpError: no block given>
-=> #<LocalJumpError: no block given>
 ```
 
 ***
@@ -808,42 +507,6 @@ p "Hello" % 5
 ?> p "Hello" % 5
 "Hello"
 => "Hello"
-```
-
-***
-
-### それぞれの実行結果は以下のようになります。
-
-* `member?`：ハッシュに **キー** が存在する場合に真を返す(`has_key?`、`include?`、`key?`メソッドも同様)
-
-```ruby
->> hash = {"apple" => "grate", "banana" => "ole", "orange" => "juice"}
-=> {"apple"=>"grate", "banana"=>"ole", "orange"=>"juice"}
->> p hash.member?("apple")
-true
-=> true
-```
-
-***
-
-### 次のコードを実行するとどうなりますか
-
-`str.chop`は末尾の文字を取り除きます。ただし、文字列の末尾が`"\r\n"`であれば、2文字とも取り除きます。
-破壊的メソッドではないので、`self`は影響を受けません。
-
-```ruby
->> str = "Liberty Fish   \r\n"
-=> "Liberty Fish   \r\n"
->> str.chop
-=> "Liberty Fish   "
->> p str
-"Liberty Fish   \r\n"
-=> "Liberty Fish   \r\n"
->> str.chop!
-=> "Liberty Fish   "
->> p str
-"Liberty Fish   "
-=> "Liberty Fish   "
 ```
 
 ***
@@ -1036,68 +699,6 @@ p chars
 
 ***
 
-### メソッドの定義の確認
-
-```ruby
->> p String.method_defined?(:to_h)
-false
-=> false
-```
-
-***
-
-### 実行後の textfile.txt 内容になるようにXXXXに適切なコードを選べ
-
-```ruby
-open('textfile.txt', XXXX) do |f|
-  data = f.read.upcase
-  f.rewind
-  f.puts data
-end
-
-# 実行前
-recode 1
-recode 2
-recode 3
-
-# 実行後
-RECODE 1
-RECODE 2
-RECODE 3
-```
-
-#### 解説
-
-* `w`：書き込みモードで開くため、`f.read`でエラーに
-
-* `a+`：読み込みモード + 追記書き込みモード
-  ファイルの読み込みは、ファイルの先頭から行いますが、書き込みは、ファイルの末尾に行います。
-  `f.rewind`でファイルポインタをファイルの先頭に移動したとしても、ファイルの末尾に書き込まれます。
-
-* `w+`：新規作成・読み込み + 書き込みモードで開きます。既にファイルが存在する場合は、空になります。
-
-* `r+`：読み込み + 書き込みモードで開きます。
-
-***
-
-### Hashクラスについて適切な記述を選びなさい（複数選択）
-
-* `Hash`の初期化は、`{}`、`Hash.new`、`Hash({})`で行う
-
-* `Hash#revert`メソッドは存在しない。`Hash#invert`メソッドは、キーと値を逆にしたハッシュを返す
-
-* `Hash#fetch`メソッドは、与えられた **キー** に対する **値** を返す
-
-```ruby
->> fruits = { "apple" => 100, "orange" => 80, "melon" => 450 }
-=> {"apple"=>100, "orange"=>80, "melon"=>450}
->> puts fruits.fetch("apple")
-100
-=> nil
-```
-
-***
-
 ### 次のコードを実行するとどうなりますか。
 
 ```ruby
@@ -1135,21 +736,6 @@ v2 = v1 || (raise RuntimeError)
 ```
 
 ***
-
-### 次のコードを実行するとどうなりますか
-
-`rescue`に処理対象の例外クラスの指定がない場合は、`StandardError`のサブクラス全てを捕捉します。
-Rubyの組み込み例外は全て`StandardError`のサブクラスです。
-
-```ruby
->> begin
-?>   raise StandardError.new
->> rescue => e
->>   puts e.class
->> end
-StandardError
-=> nil
-```
 
 ***
 
@@ -1793,58 +1379,6 @@ p a + b - c
 
 ***
 
-### 以下の実行結果になるように、`XXXX`に記述する適切なコードを全て選びなさい
-
-```ruby
-a = ["a", "b", "c"]
-b = [1, 2, 3]
-XXXX
-
-# 実行結果
-["a", 1]
-["b", 2]
-["c", 3]
-```
-
-#### 解説
-
-`Array#zip`は、自身と引数に渡した配列の各要素からなる配列を生成して返す。
-
-ブロックを渡した場合は、各要素を順番に返す
-
-`Array#transpose`は、2次元配列の行と列を入れ替えるメソッド
-
-```ruby
-# 1問目
->> a.zip(b).each{|x| p x}
-["a", 1]
-["b", 2]
-["c", 3]
-=> [["a", 1], ["b", 2], ["c", 3]]
-
-# 2問目
->> a.zip(b){|x| p x}
-["a", 1]
-["b", 2]
-["c", 3]
-=> nil
-
-# 3問目
->> [a, b].zip{|x, y| p [x, y]}
-["a", "b"]
-[1, 2]
-=> nil
-
-# 4問目
->> [a, b].transpose.each{|x, y| p [x, y]}
-["a", 1]
-["b", 2]
-["c", 3]
-=> [["a", 1], ["b", 2], ["c", 3]]
-```
-
-***
-
 ### 以下のコードの実行結果として適切なものを選びなさい
 
 ```ruby
@@ -1863,48 +1397,6 @@ p "find!find!find!find!find!find".index("!", 5)
 第2引数には、探索の開始位置を指定する。
 
 出題コードの探索の開始位置は、5(6番目)。
-
-***
-
-### 以下のコードの実行結果として適切なものを選びなさい
-
-```ruby
-p "hogepiyohogehoge".slice(/o../)
-
-# 解答
->> p "hogepiyohogehoge".slice(/o../)
-"oge"
-=> "oge"
-```
-
-#### 解説
-
-`String#slice`は、文字列から指定された一部分を切り出すメソッド
-
-`slice`の引数に正規表現を指定すると、そのパターンにマッチした文字列を返す
-
-正規表現`/o../`は、oで始まる任意の3文字にマッチするので、最初にマッチした`oge`が返る
-
-***
-
-### 以下のコードを実行すると何が表示されますか
-
-```ruby
-puts "0123456789-".delete("^13-56-")
-
-# 解答
->> puts "0123456789-".delete("^13-56-")
-13456-
-=> nil
-```
-
-#### 解説
-
-`String#delete`は、引数に含まれる文字を文字列から取り除く
-
-`^`で始まる文字列は、その文字列以外を削除する。(例：`[^1]`の場合、`1`以外を削除する)
-
-`[-]`は文字の範囲を示す。(例：`[1-3]`の場合、1,2,3を意味する)
 
 ***
 
@@ -2006,113 +1498,6 @@ p h
 
 ***
 
-### 以下の実行結果になるように、`XXXX`に記述する適切なコードを選びなさい
-
-```ruby
-puts File.XXXX ("/", "user", "bin")
-
-# 解答
->> puts File.join("/", "user", "bin")
-/user/bin
-=> nil
-```
-
-#### 解答
-
-`File`クラスの`join`は、`File::SEPARATOR`(ファイルパスのセパレータを保持する定数。値は環境によらず`/`)
-
-を間に入れて引数の文字列を連結したファイルパスを作成する
-
-ただし、前の文字列が`File::SEPARATOR`で終わる場合は、`File::SEPARATOR`を間に入れない
-
-***
-
-### 期待した出力結果になるようにXXXXに適切なコードを選べ
-
-```ruby
-d = Time.new(2015, 1, 5)
-puts d.strftime(XXXX)
-
-# 出力結果
-01/05/15
-
-# 解答
->> d = Time.new(2015, 1, 5)
-=> 2015-01-05 00:00:00 +0900
->> puts d.strftime("%x")
-01/05/15
-=> nil
-```
-
-* `%x`：日付(%m/%d/%y)
-
-* `%m`：月を表す数字(01-12)
-
-* `%M`：分(00-59)
-
-* `%d`：日(01-31)
-
-* `%D`：日付(%m/%d/%y)
-
-* `%y`：西暦の下2桁(00-99)
-
-* `%Y`：西暦を表す数(9999)
-
-
-```ruby
->> d = Time.new(2015, 1, 5)
-=> 2015-01-05 00:00:00 +0900
-
-# "x"
->> puts d.strftime("%x")
-01/05/15
-=> nil
-
-# "%m/%d/%Y"
->> puts d.strftime("%m/%d/%Y")
-01/05/2015
-=> nil
-
-# "%m/%D/%y"
->> puts d.strftime("%m/%D/%y")
-01/01/05/15/15
-=> nil
-
-# "%M/%d/%y"
->> puts d.strftime("%M/%d/%y")
-00/05/15
-=> nil
-```
-
-***
-
-### 学習マラソンで間違えた問題
-
-```ruby
->> p (1..10).lazy.map{|num|
-?>   num * 2
->> }.take(3).inject(0, &:+)
-12
-=> 12
-
-# 解説
-p (1..10).lazy.map{|num| num * 2 }.take(3).inject(0, &:+) # 2+4+6=12
-
-# 例1
->> p (1..10).map{|num| num * 2 }.inject(0, &:+)
-110
-=> 110
-
-# 例2
->> p (1..10).map{|num| num * 2 }
-[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-=> [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-
-# 例3
->> p (1..10).lazy.map{|num| num * 2 }.take(3)
-#<Enumerator::Lazy: #<Enumerator::Lazy: #<Enumerator::Lazy: 1..10>:map>:take(3)>
-=> #<Enumerator::Lazy: #<Enumerator::Lazy: #<Enumerator::Lazy: 1..10>:map>:take(3)>
-```
 
 ```ruby
 while not DATA.eof?
@@ -2274,68 +1659,6 @@ p M::C.new.awesome_method
 
 ***
 
-### 実行後の textfile.txt 内容になるようにXXXXに適切なコードを選べ。ただし、空ファイルは作成済みである。
-
-```ruby
-File.open('testfile.txt', XXXX) do |f|
-  f.write("recode 1\n")
-  f.seek(0, IO::SEEK_SET)
-  f.write("recode 2\n")
-end
-
-# 実行後の textfile.txt 内容
-recode 1
-recode 2
-```
-
-```ruby
-File.open('testfile.txt', "w+") do |f|
-  f.write("recode 1\n")
-  f.seek(0, IO::SEEK_SET)
-  f.write("recode 2\n")
-end
-=> recode 2
-
-File.open('testfile.txt', "a+") do |f|
-  f.write("recode 1\n")
-  f.seek(0, IO::SEEK_SET)
-  f.write("recode 2\n")
-end
-=> recode 1
-=> recode 2
-```
-
-* `w+`
-`w+`は新規作成・読み込み + 書き込みモードで開きます。
-既にファイルが存在する場合は、空になります。
-`IO#seek`はファイルポインタを指定の位置に移動します。`IO:SEEK_SET`がファイルの先頭からの位置を指定する識別子です。
-
-よって、`recode 1`を書き込み後にファイルの先頭にファイルポインタを移動し、`recode 2`で上書きしています。
-
-※`w`も同様
-
-* `a+`
-`a+`はファイルを読み込みモード + 追記書き込みモードで開きます。
-ファイルの読み込みは、ファイルの先頭から行いますが、書き込みは、ファイルの末尾に行います。
-
-***
-
-### 以下のコードを実行した時の出力として正しいものを1つ選択してください。
-
-Timeクラスのオブジェクトに対して「+」メソッドや「-」メソッドを使って数値を加算減算できます。数値の単位は秒です。
-
-```ruby
->> t = Time.now + (60*60*24)
-=> 2018-09-29 00:07:02 +0900
-
-# 実行時の日時から24時間後(86400秒後)の日時が表示される
->> p t
-2018-09-29 00:07:02 +0900
-=> 2018-09-29 00:07:02 +0900
-```
-
-***
-
 ### ローカル変数の名前として正しいものをすべて選択してください。
 
 １文字目は`アルファベット小文字`か`_`で始める必要があります。
@@ -2363,21 +1686,6 @@ p 100.downto(90).select{|x| x%2==0}
 
 ***
 
-### 以下のコードを実行した出力として正しいものを１つ選択してください。
-
-`String#delete`：`self`（メソッドのレシーバーとなったオブジェクト）に含まれる文字を取り除いた文字列を生成して返します。
-
-```ruby
-puts "Ruby on Rails".delete("Rails")
-
-# 解答
->> puts "Ruby on Rails".delete("Rails")
-uby on
-=> nil
-```
-
-***
-
 ### 以下のコードにおける4行目`io.rewind`について正しい説明を１つ選択してください。
 
 * `rewind`：ファイルポインタを先頭に移動し、`lineno`の値を`0`にする
@@ -2400,84 +1708,6 @@ end
 []
 => []
 ```
-
-***
-
-### 以下のコードを実行したときの出力として適切な物を1つ選択してください。
-
-* `File#join`：定数`FILE::SEPARATOR "/"`を使って文字列を連結します。
-
-```ruby
-p File.join("ruby", "exam","silver")
-
-# 解答
->> p File.join("ruby", "exam","silver")
-"ruby/exam/silver"
-=> "ruby/exam/silver"
-```
-
-***
-
-### 以下のコードを実行したときの出力として適切な物を1つ選択してください。
-
-* `String#slice(nth, len)`：文字列の`nth`目から`len`文字の文字列を作って返します。
-
-```ruby
-string = "test code"
-string.slices(0,4)
-p string
-
-# 解答
->> string = "test code"
-=> "test code"
->> string.slice(0,4)
-=> "test"
->> p string
-"test code"
-=> "test code"
-
-# 破壊的メソッドの場合
->> string = "test code"
-=> "test code"
->> string.slice!(0,4)
-=> "test"
->> p string    # 0から4番目(test )が削除
-" code"
-=> " code"
-```
-
-***
-
-### 以下のコードを実行して文字列sの単語毎の出現回数を出力させたい。(1), __(2)__ に入る最適な組み合わせを１つ選択してください。
-
-`match`が一度しか正規表現によるマッチを行わないのに対し、`scan`は繰り返しマッチを行います。
-
-```ruby
-s = "To be or not to be, that is the question."
-hash = Hash.new(0)
-s.__(1)__(__(2)__) {|i| hash[i] += 1}
-p hash["be"]
-=>2
-
-# 解答
->> s = "To be or not to be, that is the question."
-=> "To be or not to be, that is the question."
->> hash = Hash.new(0)
-=> {}
->> s.scan(/\w+/) {|i| hash[i] += 1}
-=> "To be or not to be, that is the question."
->> p hash["be"]
-2
-=> 2
-```
-
-***
-
-### 組み込みライブラリ、Integer#chr（encoding)についての説明として正しいものはどれか、2つ選択してください。
-
-* 引数で与えられた`encoding`において、`self`を文字コードと見なし、それに対応する一文字からなる文字列を返す。
-
-* 指定されたエンコーディングで`self`を正しく解釈できない場合はエラーが発生する。
 
 ***
 
@@ -2554,84 +1784,6 @@ p "foo" * 2 **2
 
 ***
 
-### 以下のコードを実行したときの出力として適切な物を1つ選択してください。
-
-foo,barは同じ配列オブジェクトを参照しています。
-例題と同じ内容で以下のメソッドを実行すると、以下のようになります。
-
-* foo.object_id # barと同じ整数値
-
-* bar.object_id # fooと同じ整数値
-
-* baz.object_id # 上記2つとは違う整数値
-
-要するに、複製したものに追加したら、元々の方も追加される
-
-```ruby
-foo = [1,2,3]
-bar = foo
-baz = foo.dup
-
-bar[3] = 4
-p foo
-p bar
-p baz
-
-# 解答
->> foo = [1,2,3]
-=> [1, 2, 3]
->> bar = foo
-=> [1, 2, 3]
->> baz = foo.dup
-=> [1, 2, 3]
->>
-?> bar[3] = 4
-=> 4
->> p foo
-[1, 2, 3, 4]
-=> [1, 2, 3, 4]
->> p bar
-[1, 2, 3, 4]
-=> [1, 2, 3, 4]
->> p baz
-[1, 2, 3]
-=> [1, 2, 3]
-```
-
-***
-
-### テキストファイルを読み込んだファイルオブジェクトから一行ずつ読み込み表示したい。目的に一致するIOクラスのメソッドを２つ選択してください。
-
-`IO#gets`と`IO#readline`はファイルオブジェクトから一行読み込んで、読み込みに成功した時にはその文字列を返します。
-
-`IO#gets`と`IO#readline`の違いはEOFに到達した時の振る舞いのみです。
-
-* `IO#gets`は`nil`
-
-* `IO#readline`は`EOFError`を返します。
-
-***
-
-### 以下のコードを実行したときの出力として適切な物を1つ選択してください。
-
-`String#split`メソッドは引数で指定した特定の文字列を区切り文字として、文字列から配列を生成します。
-
-また、第二引数で生成される配列の要素数を指定することもできます。
-
-```ruby
-str = "a,b,c,d"
-p str.split(/,/, 2)
-
-# 解答
->> str = "a,b,c,d"
-=> "a,b,c,d"
->> p str.split(/,/, 2)
-["a", "b,c,d"]
-=> ["a", "b,c,d"]
-```
-
-***
-
 # ここからまだ復習できていない！！
 
 ### 以下のコードを実行した時にIOErrorが発生した。理由として考えられるものはどれか１つ選択してください。
@@ -2649,63 +1801,6 @@ p str.split(/,/, 2)
 File.open("foo.txt") do |io|
   io.write(Time.now.strftime("%Y/%m/%d"))
 end
-```
-
-***
-
-### 次のメソッドでDirクラスのクラスメソッドではないものをすべて選択してください。(2つ選択)
-
-* `Dir.basename`
-
-* `Dir.extname`
-
-***
-
-###
-
-`String#delete`メソッドでは引数で指定された文字を`self`から取り除きます。
-
-`-`の両端に文字列がある場合は範囲指定をしていることになります。
-
-例題では`"0-5"`で0から5までの数字を取り除きますが、続く`"8-"`では範囲指定とは見なされず、8と-を削除します。
-
-```ruby
-puts "0123456789".delete("0-58-")
-
-# 解答
->> puts "0123456789".delete("0-58-")
-679
-=> nil
-```
-
-***
-
-### 以下のコードを実行した時の正しい出力結果を1つ選択してください。
-
-
-inject (Enumerable)は前回のブロックの戻り値をブロックに渡して繰り返し実行します。
-
-例題では条件演算子を使い、２つの整数値を比較しより大きな値を取り出しそれをブロックに渡しています。
-
-条件演算子(文法） 式1 ? 式1が真だった場合の値 : 式1が偽だった場合の値
-
-```ruby
-numbers = [3,89,40,39,29,10,50,59,69]
-num = numbers.inject do |i,j|
-  i > j ? i : j
-end
-p num
-
-# 解答
->> numbers = [3,89,40,39,29,10,50,59,69]
-=> [3, 89, 40, 39, 29, 10, 50, 59, 69]
->> num = numbers.inject do |i,j|
-?>   i > j ? i : j
->> end
-=> 89
->> p num
-89
-=> 89
 ```
 
 ***
@@ -2759,55 +1854,6 @@ p numbers.detect{|x| x % 5 == 0}
 
 ***
 
-### 以下のコードを実行した時の出力結果として正しいものを１つ選択してください。
-
-raise関数によって明示的に例外を発生させることができます。
-
-例題ではString#ascii_only?を使いテキストにASCII文字以外が使われている場合には例外を発生させています。
-
-例外処理の基本形は問題28の解説を参照してください。
-
-```ruby
-class NonasciiError < StandardError
-end
-
-File.open("sample.txt") do |io|
-  io.each_line do |str|
-    begin
-      raise(NonasciiError, "non ascii character detected") unless str.ascii_only?
-    rescue => ex
-      puts "#{ex.message} : #{str}"
-    end
-  end
-end
-
-[sample.txtの内容]
-Ruby Association
-ルビーアソシエーション
-るびー
-Ruby on Rails
-
-# 解答
->> class NonasciiError < StandardError
->> end
-=> nil
->>
-?> File.open("sample.txt") do |io|
-?>   io.each_line do |str|
-?>     begin
-?>       raise(NonasciiError, "non ascii character detected") unless str.ascii_only?
->>     rescue => ex
->>       puts "#{ex.message} : #{str}"
->>     end
->>   end
->> end
-non ascii character detected : ルビーアソシエーション
-non ascii character detected : るびー
-=> #<File:sample.txt (closed)>
-```
-
-***
-
 ### 10進数で10を表すものを2つ選択してください。
 
 0xAは16進数、012は8進数です。いずれも10進数では10となります。
@@ -2823,49 +1869,3 @@ C. 012
 D. 077
 E. 0x10
 ```
-
-***
-
-### 次のコードを実行するとどうなりますか
-
-`Numeric#step(limit, step)`は`self`から`step`ずつ加算し、`limit`までをブロックに渡します。
-
-問題の1.`step(5,1)`は「1から1ずつ加算し、5までの数値」という意味になります。
-
-```ruby
-def hoge
-  x = 0
-  1.step(5,1) do |i|
-    x += 1
-  end
-  puts x
-end
-hoge
-
-# 解答
->> def hoge
->>   x = 0
->>   1.step(5,1) do |i|
-?>     x += 1
->>   end
->>   puts x
->> end
-=> :hoge
->> hoge
-5
-=> nil
-```
-
-***
-
-### Silver試験で間違えた問題
-
-* delete(delete_atとの区別がつかなかった)
-
-* transpose
-
-* rescue/ensure
-
-* pop/shiftなどの配列を削除追加するものの破壊的メソッドかどうか
-
-* 

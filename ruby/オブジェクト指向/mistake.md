@@ -218,6 +218,28 @@ Array
 
 ***
 
+### 次のコードを実行するとどうなりますか
+
+* メソッドと変数の探索順位は変数が先です。
+
+```ruby
+>> hoge = 0
+=> 0
+>> def hoge
+>>   x = 0
+>>   5.times do |i|
+?>     x += 1
+>>   end
+>>   x
+>> end
+=> :hoge
+>> puts hoge
+0
+=> nil
+```
+
+***
+
 ### Hashクラスについて適切な記述を選びなさい（複数選択）
 
 * `member?`：ハッシュにキーが存在する場合に`true`(`has_key?`、`include?`、`key?`メソッドも同様)
@@ -1333,59 +1355,6 @@ Ensure.
 >> err.class.superclass.superclass
 => Exception
 ```
-
-***
-
-### 以下のコードを実行するとどうなりますか
-
-```ruby
-class Hoge
-  attr_reader :message
-  def initialize
-    @message = "Hello"
-  end
-end
-
-class Piyo < Hoge
-  def initialize
-    @message = "Hi"
-    super
-  end
-end
-
-puts Piyo.new.message
-
-# 解答
->> class Hoge
->>   attr_reader :message
->>   def initialize
->>     @message = "Hello"
->>   end
->> end
-=> :initialize
->>
-?> class Piyo < Hoge
->>   def initialize
->>     @message = "Hi"
->>     super
->>   end
->> end
-=> :initialize
->>
-?> puts Piyo.new.message
-Hello
-=> nil
-```
-
-#### 解説
-
-1. `Piyo`クラス：インスタンス化される(`initialize`メソッド)。`@message`に`"Hi"`の文字を格納した後に、`super`メソッドを呼び出す。
-
-2. `Hoge`クラス：`Piyo`のスーパークラス。`initialize`メソッドで`@message`に`"Hello"`を代入している。
-
-* `super`：メソッドが受け取った引数を、 **そのまま** スーパークラスの同名メソッドに渡して実行する。(`()`と引数を付けない場合)
-
-***
 
 ### 以下のメソッドは円の面積を求めるコードですが、このままでは動きません。このコードを動かすための修正方法を選びなさい
 
@@ -2825,47 +2794,3 @@ E. 0x10
 ```
 
 ***
-
-### 次のコードを実行するとどうなりますか
-
-`Numeric#step(limit, step)`は`self`から`step`ずつ加算し、`limit`までをブロックに渡します。
-
-問題の1.`step(5,1)`は「1から1ずつ加算し、5までの数値」という意味になります。
-
-```ruby
-def hoge
-  x = 0
-  1.step(5,1) do |i|
-    x += 1
-  end
-  puts x
-end
-hoge
-
-# 解答
->> def hoge
->>   x = 0
->>   1.step(5,1) do |i|
-?>     x += 1
->>   end
->>   puts x
->> end
-=> :hoge
->> hoge
-5
-=> nil
-```
-
-***
-
-### Silver試験で間違えた問題
-
-* delete(delete_atとの区別がつかなかった)
-
-* transpose
-
-* rescue/ensure
-
-* pop/shiftなどの配列を削除追加するものの破壊的メソッドかどうか
-
-* 
