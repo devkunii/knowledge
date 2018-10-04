@@ -2855,3 +2855,17 @@ hoge
 5
 => nil
 ```
+
+***
+
+### Silver試験で間違えた問題
+
+* delete(delete_atとの区別がつかなかった)
+
+* transpose
+
+* rescue/ensure
+
+* pop/shiftなどの配列を削除追加するものの破壊的メソッドかどうか
+
+* 
