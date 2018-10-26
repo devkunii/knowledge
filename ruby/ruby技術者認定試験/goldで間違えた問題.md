@@ -333,3 +333,202 @@ NameError: uninitialized constant M::C::CONST
 クラス`Cb`から最も物理的に近いのは`M2::CONST`であるため答えは`"011"`になります。
 
 スーパークラスの探索はこの場合には行われません。
+
+
+
+## 次のコードを実行するとどうなりますか
+
+```ruby
+>> def m1(*)
+>>   str = yield if block_given?
+>>   p "m1 #{str}"
+>> end
+=> :m1
+>>
+?> def m2(*)
+>>   str = yield if block_given?
+>>   p "m2 #{str}"
+>> end
+=> :m2
+>>
+?> m1 m2 do
+?>   "hello"
+>> end
+"m2 "
+"m1 hello"
+=> "m1 hello"
+```
+
+
+
+### 解説
+
+問題のコードで使用されているメソッド類は以下の通りです。
+
+  * `Kernel#block_given?`はブロックが渡された場合は、真になります。
+
+  * `yield`はブロックの内容を評価します。
+
+  * `{ }`は`do end`よりも結合度が高い為、実行結果に差が出ます。
+
+問題のコードは以下のように解釈されます。
+
+* `m1`の引数と解釈されるため、`m2`の戻り値は`m2`が表示されます。
+
+* `m1`へ`do .. end`のブロックが渡されます。よって、`m1 hello`が表示されます。
+
+```ruby
+m1(m2) do
+  "hello"
+end
+
+# 実行結果
+# "m2 "
+# "m1 hello"
+```
+
+問題のコードを`do ... end`で置き換えた場合は以下の実行結果になります。
+
+→こちらの方だと思って解答してしまった(2018/10/26)
+
+```ruby
+m1 m2 {  # m1 (m2 { .. } ) と解釈される
+  "hello"
+}
+
+# 実行結果
+# m2 hello
+# m1
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+`Refinement`は有効化したスコープのみに影響を与えることが出来ます。
+
+この問題ではクラスオープンした際に`using`で`Refinement`を有効化していますが、
+
+スコープ外は無効になります。
+
+よって、`puts C.new.m1`とした結果は`400`になります。
+
+```ruby
+>> class C
+>>   def m1
+>>     400
+>>   end
+>> end
+=> :m1
+>>
+>> module M
+>>   refine C do
+>>     def m1
+>>       100
+>>     end
+>>   end
+>> end
+=> #<refinement:C@M>
+>>
+>> class C       # クラスの再オープン時に、refinentを定義している
+>>   using M
+>> end
+=> C
+>>
+>> puts C.new.m1
+400
+=> nil
+```
+
+
+
+## 以下のコードを実行するとどうなりますか
+
+`initialize`の可視性は`private`に設定されています。
+
+`initialize`の可視性を`public`に設定したとしても、必ずprivateになります。
+
+```ruby
+>> class C
+>> private
+>>   def initialize
+>>   end
+>> end
+=> :initialize
+>>
+>> p C.new.public_methods.include? :initialize
+false
+=> false
+```
+
+
+
+## 次のコードを実行するとどうなりますか。
+
+`Class#name`はクラス名を文字列で返します。
+
+`Human#name`クラスは`Class#name`をオーバーライドしているので、`const_get`が呼ばれます。
+
+`const_get`は、`self`に定義された定数を探索します。自クラスに定義がない場合は、メソッドと同様に探索を行います。
+
+問題コードの5行目時点のインスタンスは`Fukuzawa`クラスです。
+
+よって、`Human#name`は`Fukuzawa`クラスの`Yukichi`を返します。
+
+```ruby
+>> class Human
+>>   NAME = "Unknown"
+>>
+>>   def self.name
+>>     const_get(:NAME)
+>>   end
+>> end
+=> :name
+>>
+>> class Fukuzawa < Human
+>>   NAME = "Yukichi"
+>> end
+=> "Yukichi"
+>>
+>> puts Fukuzawa.name
+Yukichi
+=> nil
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+`method_missing`は、継承チェーンを辿った末にメソッドが見つからなかった場合に、呼び出されます。
+
+`method_missing`も継承チェーンを辿ります。
+
+よって、`B#method_missing`が出力されます。
+
+```Ruby
+>> module M
+>>   def method_missing(id, *args)
+>>     puts "M#method_missing"
+>>   end
+>> end
+=> :method_missing
+>> class A
+>>   include M
+>>   def method_missing(id, *args)
+>>     puts "A#method_missing"
+>>   end
+>> end
+=> :method_missing
+>> class B < A
+>>   def method_missing(id, *args)
+>>     puts "B#method_missing"
+>>   end
+>> end
+=> :method_missing
+>>
+>> obj = B.new
+=> #<B:0x007f876f01e188>
+>> obj.dummy_method
+B#method_missing
+=> nil
+```
