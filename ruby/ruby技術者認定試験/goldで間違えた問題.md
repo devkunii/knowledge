@@ -5,22 +5,22 @@ goldで間違えた問題
 
 ```ruby
 >> module M
->>   CONST = "Hello, world"
+>>  CONST = "Hello, world"
 >>
->>   class C
->>     def awesome_method
->>       CONST
->>     end
->>   end
+>>  class C
+>>    def awesome_method
+>>      CONST
+>>    end
+>>  end
 >> end
-(irb):21: warning: already initialized constant M::CONST
-(irb):6: warning: previous definition of CONST was here
 => :awesome_method
-
+>>
 >> p M::C.new.awesome_method
 "Hello, world"
 => "Hello, world"
 ```
+
+![問題1](./images/gold/問題1.png)
 
 
 
@@ -28,7 +28,11 @@ goldで間違えた問題
 
 定数の参照はレキシカルに行われます。
 
-`M::C#awesome_method`のコンテキストに`CONST`がないため例外が発生します。
+`M::C#awesome_method`のコンテキスト(`self`)に`CONST`がないため例外が発生します。
+
+→`M::CONST`と、`M::C`のコンテキストが一致していれば可能
+
+→ **クラス継承** と **継承関係** は関係ない!!!
 
 ```ruby
 >> module M
@@ -45,7 +49,17 @@ goldで間違えた問題
 >>
 >> p M::C.new.awesome_method
 NameError: uninitialized constant M::C::CONST
+
+# クラス継承と、継承関係の調査
+>> a = M::C.new
+=> #<M::C:0x007fefa586fdc0>
+>> a.class
+=> M::C
+>> a.class.class       # Mが親クラスと思うが、継承関係はない
+=> Class
 ```
+
+![問題1_選択肢1](./images/gold/問題1_選択肢1.png)
 
 
 
@@ -76,6 +90,8 @@ NameError: uninitialized constant M::C::CONST
 => "Hello, world"
 ```
 
+![問題1_選択肢2](./images/gold/問題1_選択肢2.png)
+
 
 
 ### 選択肢3
@@ -83,6 +99,10 @@ NameError: uninitialized constant M::C::CONST
 `class_eval`に文字列を渡した場合のネストの状態はクラス`C`です。
 
 `CONST`はクラス`C`にありますので`"Hello, world"`が表示されます。
+
+> `class_eval`メソッドの引数に文字列`code`を渡すと、その文字列をクラス定義やモジュール定義の中のコードであるように実行します。
+>
+> 戻り値は、文字列のコードの戻り値です。
 
 ```ruby
 >> class C
@@ -104,6 +124,8 @@ NameError: uninitialized constant M::C::CONST
 => "Hello, world"
 ```
 
+![問題1_選択肢3](./images/gold/問題1_選択肢3,png)
+
 
 
 ### 選択肢4
@@ -111,6 +133,12 @@ NameError: uninitialized constant M::C::CONST
 `class_eval`にブロックを渡した場合は、ブロック内のネストはモジュール`M`になります。
 
 そのコンテキストから定数を探しますがないため例外が発生します。
+
+> `Module#class_eval`
+>
+> 文字列が与えられた場合には、定数とクラス変数のスコープは自身のモジュール定義式内と同じスコープになります。
+>
+> ブロックが与えられた場合には、定数とクラス変数のスコープはブロックの外側のスコープになります。
 
 ```ruby
 >> class C
@@ -131,13 +159,22 @@ NameError: uninitialized constant M::C::CONST
 NameError: uninitialized constant M::CONST
 ```
 
+![問題1_選択肢4](./images/gold/問題1_選択肢4.png)
+
 
 
 ## 以下のコードを実行するとどうなりますか
 
 `C#initialize`が`S#initialize`をオーバーライドされているため、`@@val += 1`は実行されません。
 
+> initializeメソッドは重複して定義するたびに、最後に定義されたinitializeメソッドが使用されます。
+
 `class << C ~ end`の処理はクラスを定義した時点で、実行されます。
+
+→返り値？？
+
+> 後日、もう一度検索してみる
+> 2018/10/27
 
 ```ruby
 >> class S
@@ -153,7 +190,7 @@ NameError: uninitialized constant M::CONST
 >>     @@val += 1
 >>   end
 >>
->>   def initialize
+>>   def initialize           # 最後のinitializeが使用される
 >>   end
 >> end
 => :initialize
@@ -531,4 +568,1649 @@ Yukichi
 >> obj.dummy_method
 B#method_missing
 => nil
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+同じメソッドに対して`Refinement`で再定義を2つのモジュールで行っています。
+
+もし、`using`を2行書いたとしても **1つのメソッドで有効になる再定義は1つだけ** です。
+
+最後に書いた`using`から優先されます。
+
+この問題では`using R2`が最後に有効化された`Refinement`です。
+
+有効になる再定義は1つだけですので、モジュール`R2`にある`super`はクラス`C`にある`m1`を呼び出します。
+
+よって、`super + 100`は`100 + 100`となり`200`が表示されるのが正解です。
+
+```ruby
+class C
+  def m1(value)
+    100 + value
+  end
+end
+
+module R1
+  refine C do
+    def m1
+      super 50
+    end
+  end
+end
+
+module R2
+  refine C do
+    def m1
+      super 100
+    end
+  end
+end
+
+using R1
+using R2
+
+puts C.new.m1
+=> 200
+```
+
+一方で、`using R1`に書いた内容はすべて無効になったかというとそういうわけではありません。
+
+次のサンプルコードだとモジュール`R2`に`m2`が定義されていなくても呼び出すことが出来ます。
+
+```ruby
+class C
+  def m1(value)
+    100 + value
+  end
+
+  def m2(value)
+    value + ", world"
+  end
+end
+
+module R1
+  refine C do
+    def m1
+      super 50
+    end
+
+    def m2
+      super "Hello"
+    end
+  end
+end
+
+module R2
+  refine C do
+    def m1
+      super 100
+    end
+  end
+end
+
+using R1
+using R2
+
+puts C.new.m1
+puts C.new.m2
+=> 200
+=> Hello, world
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+問題の`self`は`Object`クラスのインスタンスになります。
+
+`Object`クラスには`*`メソッドが定義されていないためエラーになります。
+
+```ruby
+>> p [1,2,3,4].map(&self.method(:*))
+NameError: undefined method `*' for class `#<Class:#<Object:0x007fc6a60da4c0>>'
+
+# 検証
+>> Object.instance_methods.grep(/ * /)
+=> []
+```
+
+
+
+## 次のプログラムを実行するとどうなりますか
+
+```ruby
+>> module A
+>>   B = 42
+>>
+?>   def f
+>>     21
+>>   end
+>> end
+=> :f
+>>
+>> A.module_eval(<<-CODE)
+  def self.f
+    p B
+  end
+CODE
+=> :f
+>>
+>> B = 15
+=> 15
+>>
+>> A.f
+42
+=> 42
+```
+
+
+
+### 解説
+
+`module_eval`に文字列を引数とした場合は、レシーバーのスコープで評価されます。
+
+問題のプログラムを次のようにするとネストの状態を調べることができます。
+
+```ruby
+>> A.module_eval(<<-CODE)
+  p Module.nesting
+CODE
+[A]
+=> [A]
+```
+
+定数は静的に探索が行われますので、`A::B`の`42`が答えになります。
+
+
+
+## 次のコードを実行するとどうなりますか
+
+`lambda`を`call`する際の引数は省略できません。
+
+`lambda`に似た機能に`Proc`があります。
+
+似ていますが、異なる部分もあります。
+
+次の表が`lambda`と`Proc`の違いになります。
+
+|        特徴        |           Proc           |      lambda     |
+|:------------------|:-------------------------|:----------------|
+|      引数の数      |            曖昧           |       厳密       |
+|     引数の渡し方    |       Proc.new { \       |      x, y\      |
+|return, brake, next|    call以降が実行されない   |call以降も実行される|
+
+
+
+```ruby
+>> local = 0
+=> 0
+
+>> p1 = lambda { |arg1, arg2|
+>>   arg1, arg2 = arg1.to_i, arg2.to_i
+>>   local += [arg1, arg2].max
+>> }
+=> #<Proc:0x007ffdf1084840@(irb):3 (lambda)>
+
+>> p1.call("1", "2")
+=> 2
+>> p1.call("7", "5")
+=> 9
+>> p1.call("9")
+ArgumentError: wrong number of arguments (given 1, expected 2)
+
+>> p local
+9
+=> 9
+```
+
+
+
+## 次のプログラムを実行するとどうなりますか
+
+`::`演算子が先頭にあるとトップレベルから定数の探索を行います。
+
+モジュール`M`にあるクラス`C`はトップレベルにあるものを指します。
+
+`greet`メソッドにある`CONST`はクラス`C`にはありませんが、スーパークラスにあるか探索を行います。
+
+クラス`Base`を継承していますので、`"Hello, world"`が表示されます。
+
+```ruby
+>> class Base
+>>   CONST = "Hello, world"
+>> end
+=> "Hello, world"
+>>
+>> class C < Base
+>> end
+=> nil
+>>
+>> module P
+>>   CONST = "Good, night"
+>> end
+=> "Good, night"
+>>
+>> class Base
+>>   prepend P
+>> end
+=> Base
+>>
+>> module M
+>>   class C
+>>     CONST = "Good, evening"
+>>   end
+>> end
+=> "Good, evening"
+>>
+>> module M
+>>   class ::C
+>>     def greet
+>>       CONST
+>>     end
+>>   end
+>> end
+=> :greet
+>>
+>> p C.new.greet
+"Hello, world"
+=> "Hello, world"
+```
+
+
+
+## 以下のコードを実行するとどうなりますか
+
+`@@val`に`1`加算しているタイミングは以下です。
+
+* `C`クラスの特異クラスを定義
+
+* `C.new`の呼び出し
+
+* `S.new`の呼び出し
+
+```ruby
+>> class S
+>>   @@val = 0
+>>   def initialize
+>>     @@val += 1
+>>   end
+>> end
+=> :initialize
+>>
+>> class C < S
+>>   class << C
+>>     @@val += 1
+>>   end
+>> end
+=> 1
+>>
+>> C.new
+=> #<C:0x007fc7c98e4b88>
+>> C.new
+=> #<C:0x007fc7c98def58>
+>> S.new
+=> #<S:0x007fc7c98dd5e0>
+>> S.new
+=> #<S:0x007fc7c98d7c08>
+>>
+>> p C.class_variable_get(:@@val)
+5
+=> 5
+```
+
+
+
+## 次のプログラムを実行するとどうなりますか
+
+```ruby
+>> class Object
+>>   CONST = "1"
+>>   def const_succ
+>>     CONST.succ!
+>>   end
+>> end
+=> :const_succ
+
+>> class Child1
+>>   const_succ
+>>   class << self
+>>     const_succ
+>>   end
+>> end
+=> "3"
+
+>> class Child2
+>>   const_succ
+>>   def initialize
+>>     const_succ
+>>   end
+>> end
+=> :initialize
+
+>> Child1.new
+=> #<Child1:0x007fc59f06e570>
+>> Child2.new
+=> #<Child2:0x007fc59f06c4f0>
+
+>> p Object::CONST
+"5"
+=> "5"
+```
+
+
+
+### 解説
+
+クラスObjectにメソッドを定義すると特異クラスでもそのメソッドを利用することが出来ます。
+
+問題のプログラムを順に実行すると、答えは"5"になります。
+
+
+> 補足　`Object#const_succ`について
+
+> 内部で`String#succ!`を実行しています。このメソッドはレシーバーの文字列を次の文字列へ進めます。
+
+> この問題ですと、`"1"`→`"2"`・・・と`1`ずつ繰り上がります。
+
+> また、定数に対して行っていますが破壊的メソッドの呼び出しですので再代入にはならず警告は表示されません。
+
+```ruby
+class Object
+  CONST = "1"
+  def const_succ
+    CONST.succ!
+  end
+end
+
+class Child1
+  const_succ # "2"になる
+  class << self
+    const_succ # "3"になる
+  end
+end
+
+class Child2
+  const_succ # "4になる"
+  def initialize
+    const_succ
+  end
+end
+
+Child1.new # "4"のまま
+Child2.new # "5"になる
+
+p Object::CONST
+"5"
+=> "5"
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+`super`はスーパークラスと同名のメソッドが呼ばれます。
+
+引数ありのメソッドで`super`を呼び出すと、引数ありのメソッドが呼ばれますが、そのメソッドが存在しない場合は、`ArgumentError`が発生します。
+
+引数ありのメソッドで引数なしのスーパークラスを呼び出すには、`super()`と明示的に呼び出す必要があります。
+
+```ruby
+>> class S
+>>   def initialize
+>>     puts "S#initialize"
+>>   end
+>> end
+=> :initialize
+>>
+?> class C < S
+>>   def initialize(*args)
+>>     super()
+>>     puts "C#initialize"
+>>   end
+>> end
+=> :initialize
+>>
+?> C.new(1,2,3,4,5)
+S#initialize
+C#initialize
+=> #<C:0x007f92790acab8>
+```
+
+
+
+## 次のプログラムを実行するとどうなりますか
+
+Rubyは定数の参照はレキシカルに決定されますが、この問題ではレキシカルスコープに定数はありません。
+レキシカルスコープに定数がない場合は、スーパークラスの探索を行います。
+
+この問題では、クラスC2のスコープで定数を参照しています。
+クラスC2のスーパークラスはクラスCdですので"100"が正解になります。
+
+```ruby
+>> class Ca
+>>   CONST = "001"
+>> end
+=> "001"
+>>
+?> class Cb
+>>   CONST = "010"
+>> end
+=> "010"
+>>
+?> class Cc
+>>   CONST = "011"
+>> end
+=> "011"
+>>
+?> class Cd
+>>   CONST = "100"
+>> end
+=> "100"
+>>
+?> module M1
+>>   class C0 < Ca
+>>     class C1 < Cc
+>>       class C2 < Cd
+>>         p CONST
+>>
+?>         class C2 < Cb
+>>         end
+>>       end
+>>     end
+>>   end
+>> end
+"100"
+=> nil
+```
+
+
+
+## 次のプログラムを実行するとどうなりますか
+
+module_evalにブロックを渡した場合のネストは次の通りです。
+
+```ruby
+A.module_eval do
+  p Module.nesting # []と表示され、ネストされた状態になく、トップレベルにいることがわかる
+end
+```
+トップレベルで定数を定義した場合はObjectの定数になります。
+
+```ruby
+B = "Hello, world"
+p Object.const_get(:B) # "Hello, world"と表示される
+```
+問題にあるメソッドA.fはトップレベルにある定数を探索するため答えは15になります。
+
+```ruby
+>> module A
+>>   B = 42
+>>
+?>   def f
+>>     21
+>>   end
+>> end
+=> :f
+>>
+?> A.module_eval do
+?>   def self.f
+>>     p B
+>>   end
+>> end
+=> :f
+>>
+?> B = 15
+=> 15
+>>
+?> A.f
+15
+=> 15
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+String#+はStringクラスのオブジェクトを期待します。
+引数にSymbolクラスを渡しているためTypeErrorが発生します。
+
+elseブロックは例外が発生しない場合に評価されます。
+
+```ruby
+>> begin
+?>   print "liberty" + :fish
+>> rescue TypeError
+>>   print "TypeError."
+>> rescue
+>>   print "Error."
+>> else
+?>   print "Else."
+>> end
+TypeError.=> nil
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+キーワード引数へHashオブジェクトを渡すことができます。
+Hashの中身を渡す必要があるので、変数の前に**を付加します。
+
+```ruby
+>> def foo(arg1:100, arg2:200)
+>>   puts arg1
+>>   puts arg2
+>> end
+=> :foo
+>>
+?> option = {arg2: 900}
+=> {:arg2=>900}
+>>
+?> foo arg1: 200, *option
+SyntaxError: (irb):8: syntax error, unexpected *
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+問題のコードで使用されているメソッド類は以下の通りです。
+
+Kernel#block_given?はブロックが渡された場合は、真になります。
+yieldはブロックの内容を評価します。
+{ }はdo endよりも結合度が高い為、実行結果に差が出ます。
+問題のコードは以下のように解釈されます。
+
+m2へブロックが渡され、m2 helloが表示されます。
+m1へは引数が渡され、ブロックは渡されません。よって、m1が表示されます。
+
+```ruby
+m1 (m2 {
+      "hello"
+    }
+)
+
+# 実行結果
+# "m2 hello"
+# "m1 "
+```
+
+問題のコードをdo endで置き換えた場合は以下の実行結果になります。
+
+```ruby
+m1 m2 do  # m1(m2) do と解釈されます。
+  "hello"
+end
+
+# 実行結果
+# "m2 "
+# "m1 hello"
+```
+
+
+```ruby
+>> def m1(*)
+>>   str = yield if block_given?
+>>   p "m1 #{str}"
+>> end
+=> :m1
+>>
+?> def m2(*)
+>>   str = yield if block_given?
+>>   p "m2 #{str}"
+>> end
+=> :m2
+>>
+?> m1 m2 {
+?>   "hello"
+>> }
+"m2 hello"
+"m1 "
+=> "m1 "
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+1iは複素数(Complex)のオブジェクトを表します。
+Complex同士の演算はComplexを返します。
+
+```ruby
+>> val = 1i * 1i
+=> (-1+0i)
+>> puts val.class
+Complex
+=> nil
+```
+
+
+
+## 次のプログラムの実行結果を得るために`__(1)__`に適切なメソッドをすべて選んでください。
+
+```ruby
+module Enumerable
+  def with_prefix(prefix)
+    return to_enum(__(1)__, prefix) { size } unless block_given?
+
+    each do |char|
+      yield "#{prefix} #{char}"
+    end
+  end
+end
+
+[1,2,3,4,5].with_prefix("Awesome").reverse_each {|char|
+  puts char
+}
+
+# 実行結果
+Awesome 5
+Awesome 4
+Awesome 3
+Awesome 2
+Awesome 1
+```
+
+```ruby
+# 選択肢1
+
+:with_prefix
+# 選択肢2
+
+:reverse_each
+# 選択肢3
+
+__method__
+# 選択肢4
+:each
+```
+
+
+### 解説
+
+ブロックを渡さない場合は、Enumeratorオブジェクトを作成してメソッドをチェーン出来るようにします。
+
+Enumeratorオブジェクトを作成するためには、to_enumまたは、enum_forを呼びます。これらの引数にメソッド名をシンボルで指定することでチェーンした先でブロックを渡されたときにどのメソッドを評価すればよいかが分かります。
+
+この問題では、with_prefixを再び評価する必要がありますので、`__method__`または:with_prefixを引数に指定します。`__method__`はメソッドの中で呼び出すと、そのメソッド名になります。
+
+```ruby
+def awesome_method
+  __method__
+end
+
+p awesome_method # :awesome_methodとシンボルでメソッド名が分かります
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+method_missingは、継承チェーンを辿った末にメソッドが見つからなかった場合に、呼び出されます。
+method_missingも継承チェーンを辿ります。
+
+問題で、B.dummy_methodと呼び出しています。
+これは、Classクラスのインスタンスメソッドが呼ばれます。
+よって、Class#method_missingが出力されます。
+
+```ruby
+>> class Class
+>>   def method_missing(id, *args)
+>>     puts "Class#method_missing"
+>>   end
+>> end
+=> :method_missing
+>> class A
+>>   def method_missing(id, *args)
+>>     puts "A#method_missing"
+>>   end
+>> end
+=> :method_missing
+>> class B < A
+>>   def method_missing(id, *args)
+>>     puts "B#method_missing"
+>>   end
+>> end
+=> :method_missing
+>>
+?> B.dummy_method
+Class#method_missing
+=> nil
+```
+
+
+
+## 次のコードを実行するとどうなりますか。
+
+定数はインスタンスではなくクラスに存在します。
+定数の探索順位はクラス内 -> スーパークラス -> クラス探索順に行われます。
+
+よって、Human#nameのクラス内定数であるNAME = "Unknown"が返されます。
+
+```ruby
+>> class Human
+>>   NAME = "Unknown"
+>>
+?>   def name
+>>     NAME
+>>   end
+>> end
+=> :name
+>>
+?> class Noguchi < Human
+>>   NAME = "Hideyo"
+>> end
+=> "Hideyo"
+>>
+?> puts Noguchi.new.name
+Unknown
+=> nil
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+Array#sortは比較に<=>を使用しています。
+自作クラスの場合はオブジェクトIDが比較対象となります。
+
+Fixnum#<=>(other)は以下の結果を返します。
+
+selfがotherより大きい場合は、1を返します。
+selfがotherと等しい場合は、0を返します。
+selfがotherより小さい場合は、-1を返します。
+問題のコードでは、sortは非破壊的メソッドです。
+よってputs時点ではソートが行われずに配列へ挿入した順番に表示されます。
+
+```ruby
+>> class Company
+>>   attr_reader :id
+>>   attr_accessor :name
+>>   def initialize id, name
+>>     @id = id
+>>     @name = name
+>>   end
+>>   def to_s
+>>     "#{id}:#{name}"
+>>   end
+>>   def <=> other
+>>     self.id <=> other.id
+>>   end
+>> end
+=> :<=>
+>>
+?> companies = []
+=> []
+>> companies << Company.new(2, 'Liberyfish')
+=> [#<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">]
+>> companies << Company.new(3, 'Freefish')
+=> [#<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">, #<Company:0x007fe8681834d8 @id=3, @name="Freefish">]
+>> companies << Company.new(1, 'Freedomfish')
+=> [#<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">, #<Company:0x007fe8681834d8 @id=3, @name="Freefish">, #<Company:0x007fe86911d998 @id=1, @name="Freedomfish">]
+>>
+?> companies.sort
+=> [#<Company:0x007fe86911d998 @id=1, @name="Freedomfish">, #<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">, #<Company:0x007fe8681834d8 @id=3, @name="Freefish">]
+>>
+?> companies.each do |e|
+?>   puts e
+>> end
+2:Liberyfish
+3:Freefish
+1:Freedomfish
+=> [#<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">, #<Company:0x007fe8681834d8 @id=3, @name="Freefish">, #<Company:0x007fe86911d998 @id=1, @name="Freedomfish">]
+```
+
+
+
+## 次のプログラムの実行結果を得るために`__(1)__`に適切なメソッドをすべて選んでください。
+
+```ruby
+class Array
+  def succ_each(step = 1)
+    return __(1)__(__method__, step) unless block_given?
+
+    each do |int|
+      yield int + step
+    end
+  end
+end
+
+[97, 98, 99].succ_each.map {|int|
+  p int.chr
+}
+
+# 実行結果
+"b"
+"c"
+"d"
+```
+
+```ruby
+# 選択肢1
+enum
+
+# 選択肢2
+enum_chr
+
+# 選択肢3
+to_enum
+
+# 選択肢4
+enum_for
+```
+
+
+
+### 解説
+
+ブロックを渡さない場合は、Enumeratorオブジェクトを作成してメソッドをチェーン出来るようにします。また、ブロックを渡す場合はyieldで評価してブロックを評価します。
+
+内部イテレータを実装する場合は次のような構造になることが多いです。レシーバーの配列の要素に対して、stepだけ数値を進めるようなイテレータを作ります。簡単化の為、整数値しかない配列だけを想定します。
+
+```ruby
+class Array
+  def succ_each(step = 1)
+    # Enumeratorオブジェクトを作成して、メソッドチェーンできるようにします。
+    # ブロックの有無は、block_given?メソッドで判定します。
+    return to_enum(:succ_each, step) unless block_given?
+
+    # ブロックを渡された場合の実装です。
+    # ブロックはyieldで評価します。
+    each do |int|
+      yield int + step
+    end
+  end
+end
+```
+
+to_enumまたは、enum_forでEnumeratorオブジェクトを作成しますが引数に実行対象のメソッド名をシンボルで指定します。
+先程のサンプルコードではto_enum(:succ_each, step)と書いていますが、これはto_enum(`__method__`, step)と書くのと同じです
+。`__method__`は実行中のメソッドをシンボルで返します。
+
+
+
+## 次のコードを実行するとどうなりますか
+
+引数なしでraiseを呼び出すと、RuntimeError例外が発生します。
+
+```ruby
+>> begin
+?>   raise
+>> rescue => e
+>>   puts e.class
+>> end
+RuntimeError
+=> nil
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+raiseの例外クラスを省略した場合は、RuntimeErrorを発生させます。
+rescueの例外クラスを省略した場合は、StandardErrorを捕捉します。
+RuntimeErrorはstanderdErrorのサブクラスです。
+
+```ruby
+>> begin
+?>   raise "Err!"
+>> rescue => e
+>>   puts e.class
+>> end
+RuntimeError
+=> nil
+```
+
+
+
+## 次のプログラムを実行するとどうなりますか
+
+```ruby
+>> module K
+>>   CONST = "Good, night"
+>>   class P
+>>   end
+>> end
+=> nil
+>>
+?> module K::P::M
+>>   class C
+>>     CONST = "Good, evening"
+>>   end
+>> end
+=> "Good, evening"
+>>
+?> module M
+>>   class C
+>>     CONST = "Hello, world"
+>>   end
+>> end
+=> "Hello, world"
+>>
+?> class K::P
+>>   class M::C
+>>     p CONST
+>>   end
+>> end
+"Good, evening"
+=> "Good, evening"
+```
+
+
+
+### 解説
+
+クラスK::PにあるクラスM::Cはトップレベルにあるものとは異なります。
+ネスト状態が同じものがあれば、そのレキシカルスコープから定数の探索を行います。
+この問題では定数CONSTが参照しているのはK::P::M::Cで、そのレキシカルスコープにある定数を探索しますので"Good, evening"と表示されます。
+
+```ruby
+module K
+  class P
+    p Module.nesting # [K::P, K]と表示されます
+  end
+end
+
+module K::P::M
+  class C
+    p Module.nesting # [K::P::M::C, K::P::M]と表示されます
+  end
+end
+
+module M
+  class C
+    p Module.nesting # [M::C, M]と表示されます
+  end
+end
+
+class K::P
+  class M::C
+    p Module.nesting # [K::P::M::C, K::P]と表示されます
+  end
+end
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+```ruby
+>> class S
+>>   def initialize
+>>     puts "S#initialize"
+>>   end
+>> end
+=> :initialize
+>>
+?> class C < S
+>>   def initialize(*args)
+>>     super
+>>     puts "C#initialize"
+>>   end
+>> end
+=> :initialize
+>>
+?> C.new(1,2,3,4,5)
+ArgumentError: wrong number of arguments (given 5, expected 0)
+```
+
+
+
+### 解説
+
+問題のコードはArgumentError: wrong number of arguments (5 for 0)が発生します。
+
+superと呼び出した場合は、現在のメソッドと同じ引数が引き継がれます。
+引数を渡さずにオーバーライドしたメソッドを呼び出す際はsuper()とします。
+
+問題のコードは次のように修正します。
+
+修正後
+
+```ruby
+class S
+  def initialize
+    puts "S#initialize"
+  end
+end
+
+class C < S
+  def initialize(*args)
+    super() # 引数なしを明示的に指定する
+    puts "C#initialize"
+  end
+end
+```
+
+
+
+## 次のプログラムで実行した期待値を得られるように、`__(1)__`と`__(2)__`のメソッドの組み合わせを選んでください。
+
+```ruby
+fiber = Fiber.new do
+  __(1)__ 'Hi, there!'
+end
+
+p __(2)__
+
+# 期待値
+
+"Hi, there!"
+```
+
+選択肢
+
+```ruby
+# 1
+__(1)__ ruby Fiber.yield
+__(2)__ ruby fiber.resume
+
+# 2
+__(1)__ ruby Fiber.resume
+__(2)__ ruby fiber.yield
+
+# 3
+__(1)__ ruby fiber.resume
+__(2)__ ruby Fiber.yield
+
+# 4
+__(1)__ ruby fiber.yield
+__(2)__ ruby Fiber.resume
+```
+
+
+
+### 解説
+
+Fiberは軽量スレッドを提供します。
+
+Fiber#resumeを実行するとFiber.yieldが最後に実行された行から再開するか、Fiber.newに指定したブロックの最初の評価を行います。
+
+サンプルプログラムを実行して、処理の内容を見てみましょう
+
+```ruby
+f = Fiber.new do |name|
+  Fiber.yield "Hi, #{name}"
+end
+
+p f.resume('Matz') # 'Hi, Matz'と表示されます。
+```
+
+
+1. f.resume('Matz')を実行する。
+1. Fiber.newのブロックを評価し、引数nameには'Matz'をセットする。
+1. 変数を展開して、'Hi, Matz'をFiber.yieldの引数にセットする。
+1. Fiber.yield('Hi, Matz')を実行すると、f.resume('Matz')の戻り値が'Hi, Matz'になる。
+1. Fiber.yield('Hi, Matz')の実行終了を待たずに、プログラムが終了する。
+
+問題のプログラムの期待値を得る組み合わせは次のとおりです。
+
+```ruby
+fiber = Fiber.new do
+  Fiber.yield 'Hi, there!'
+end
+
+p fiber.resume
+```
+
+
+
+## 次のプログラムと同じ実行結果が得られる実装を選択肢から選んでください。
+
+```ruby
+class Array
+  def succ_each(step = 1)
+    return enum_for(:succ_each, step) unless block_given?
+
+    each do |int|
+      yield int + step
+    end
+  end
+end
+
+p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
+
+[101, 102, 103].succ_each(5) do |succ_chr|
+  p succ_chr.chr
+end
+
+# 実行結果
+["d", "e", "f"]
+"j"
+"k"
+"l"
+```
+
+選択肢
+
+```ruby
+# 1
+class Array
+  def succ_each(step = 1)
+    return each(:succ_each) unless block_given?
+
+    each do |int|
+      yield int + step
+    end
+  end
+end
+
+p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
+
+[101, 102, 103].succ_each(5) do |succ_chr|
+  p succ_chr.chr
+end
+
+# 2
+class Array
+  def succ_each(step = 1)
+    return to_enum(:succ_each) unless block_given?
+
+    each do |int|
+      yield int + step
+    end
+  end
+end
+
+p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
+
+[101, 102, 103].succ_each(5) do |succ_chr|
+  p succ_chr.chr
+end
+
+# 3
+class Array
+  def succ_each(step = 1)
+    return to_enum(:succ_each, step) unless block_given?
+
+    each do |int|
+      yield int + step
+    end
+  end
+end
+
+p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
+
+[101, 102, 103].succ_each(5) do |succ_chr|
+  p succ_chr.chr
+end
+
+# 4
+class Array
+  def succ_each(step = 1)
+    unless block_given?
+      Enumerator.new do |yielder|
+        each do |int|
+          yielder << int + step
+        end
+      end
+    else
+      each do |int|
+        yield int + step
+      end
+    end
+  end
+end
+```
+
+
+
+### 解説
+
+ブロックを渡す場合と、チェーンを行う場合の両方を考慮する必要があります。
+チェーンを行う場合はEnumeratorオブジェクトを作成する必要があります。作成に必要なメソッドはenum_forとto_enumです。
+
+問題では、enum_forを使っていますので選択肢のうちto_enumを使っている選択肢が答えのひとつです。
+ただし、to_enumは引数にメソッド名とそのメソッドに必要な引数を指定する必要があります。問題ではsucc_eachメソッドに引数2を渡していますのでEnumeratorオブジェクトを作成するときに必要になります。
+
+また、Enumeratorオブジェクトはnewメソッドで作成することが出来ます。この問題ですと少し冗長ではありますが、全体的には次のとおりです。
+
+```ruby
+class Array
+  def succ_each(step = 1)
+    unless block_given? # ブロックが無い場合は、オブジェクトを作成
+      Enumerator.new do |yielder|
+        each do |int|
+          yielder << int + step
+        end
+      end
+    else # ブロックがある場合の実装
+      each do |int|
+        yield int + step
+      end
+    end
+  end
+end
+```
+
+
+これも答えのひとつで、この問題ではto_enum(:succ_each, step)とEnumeratorオブジェクトを作成する選択肢が答えになります。
+
+なお、チェーンした先で渡されたブロックを評価するためにはEnumerator::Yielderのオブジェクトを利用します。
+オブジェクトに対して、<<を実行することでブロック内で評価した結果を受け取ることが出来ます。
+
+
+
+## 次の2つのプログラムを実行するとどうなりますか
+
+```ruby
+# lib.rbの内容
+module Lib
+  $num += 1
+end
+
+# program.rbの内容
+$num = 0
+1..10.times do |n|
+  load './lib.rb'
+end
+puts $num
+```
+
+
+
+### 解説
+
+loadはRubyプログラムをロードします。
+
+requireとloadの違い
+
+* requireは同じファイルは1度のみロードする、loadは無条件にロードする。
+* requireは.rbや.soを自動補完する、loadは補完は行わない。
+* requireはライブラリのロード、loadは設定ファイルの読み込みに用いる。
+
+
+
+## 次のプログラムと同じく特異クラスを取得する選択肢を選んでください。
+
+```ruby
+class C
+  def self._singleton
+    class << C
+      self
+    end
+  end
+end
+
+p C._singleton
+```
+
+選択肢
+
+```ruby
+# 1
+class C
+  def self._singleton
+    class << C
+      val = self
+    end
+    val
+  end
+end
+
+p C._singleton
+
+# 2
+class C
+end
+
+def C._singleton
+  self
+end
+
+p C._singleton
+
+# 3
+class C
+end
+
+class << C
+  def _singleton
+    self
+  end
+end
+
+p C._singleton
+
+# 4
+class C
+end
+p C.singleton_class
+```
+
+
+
+### 解説
+
+Object.singleton_classを利用すると特異クラスを取得することが出来ます。
+
+特異クラスでselfを参照するとレシーバのオブジェクトがとれます。この選択肢では、クラスCが取得できます。
+
+また、特異クラス定義では新しくスコープが作られますので次のプログラムでは例外が発生します。
+
+```ruby
+class C
+  def self._singleton
+    class << C
+      val = self # 特異クラスのみ有効なローカル変数
+    end
+    val
+  end
+end
+
+p C._singleton
+```
+
+
+
+## 次のプログラムを実行するとどうなりますか
+
+```ruby
+class Base
+  def name
+    p 'Base#name'
+  end
+end
+
+module Scope
+  class Base
+    def name
+      p 'Scope::Base#name'
+    end
+  end
+
+  class Inherited < Base
+    def name
+      p 'Scope::Inherited#name'
+      super
+    end
+  end
+end
+
+inherited = Scope::Inherited.new
+inherited.name
+```
+
+
+
+### 解説
+
+クラスInheritedの親クラスBaseがどのように決定されるかがこの問題のポイントです。
+クラスはRubyでは定数です。定数の探索はレキシカルスコープを利用します。
+
+親クラスBaseの探索はモジュールScopeから始まります。
+レキシカルスコープにクラス（定数）Baseが見つかったので、クラスInheritedの親クラスBaseはScope::Baseとなります。
+
+```ruby
+class Base
+  def name
+    p 'Base#name'
+  end
+end
+
+module Scope
+  class Base
+    def name
+      p 'Scope::Base#name'
+    end
+  end
+
+  class Inherited < Base # クラスScope::Baseとして解釈される
+    def name
+      p 'Scope::Inherited#name'
+      super
+    end
+  end
+end
+```
+
+もし、クラスBaseがクラスInheritedより前に定義されていないのであれば動作が変わります。
+継承を定義した時点でScope::BaseをRubyは見つけることができないので、親クラスBaseはトップレベルにあるクラスを参照します。
+
+```ruby
+class Base
+  def name
+    p 'Base#name'
+  end
+end
+
+module Scope
+  class Inherited < Base # トップレベルにあるクラスBaseとして解釈される
+    def name
+      p 'Scope::Inherited#name'
+      super
+    end
+  end
+
+  class Base
+    def name
+      p 'Scope::Base#name'
+    end
+  end
+end
+
+inherited = Scope::Inherited.new
+inherited.name
+
+# 結果は次の通り
+# "Scope::Inherited#name"
+# "Base#name"
+```
+
+
+
+## Kernelモジュールで定義されているメソッドを選んでください。
+
+選択肢
+
+```ruby
+# 1
+Kernel#String
+
+# 2
+Kernel#Array
+
+# 3
+Kernel#Date
+
+# 4
+Kernel#Hash
+```
+
+
+
+### 解説
+
+Kernel#Array、Kernel#Hash、Kernel#StringはKernelのモジュール関数として定義されています。
+Kernel#Dateはありません。
+
+これらのメソッドは次のように使います。
+
+```ruby
+p Array("Awesome Array") #=> ["Awesome Array"]
+p Hash(awesome_key: :value) #=> {:awesome_key=>:value}
+p String('0123456789') #=> "0123456789"
+```
+
+
+
+## 次のプログラムの期待値を得られるように正しいメソッドを選んでください。
+
+```ruby
+require 'yaml'
+
+yaml = <<YAML
+  sum: 510,
+  orders:
+    - 260
+    - 250
+YAML
+
+object = YAML.__(1)__
+
+p object
+
+
+# 期待値（Hashオブジェクト）
+
+{"sum"=>510, "orders"=>[260, 250]}
+```
+
+
+
+### 解説
+
+文字列のYAMLデータをHashオブジェクトにしています。
+
+YAML.loadは引数を１つ取り、YAMLデータをRubyオブジェクトにします。
+引数は文字列でも良いですし、IOオブジェクトでも良いです。
+
+read、new、openはYAMLモジュールにないメソッドです。
+
+文字列からRubyオブジェクトにするサンプル
+```ruby
+require 'yaml'
+
+yaml = <<YAML
+sum: 510,
+orders:
+- 260
+- 250
+YAML
+
+loaded_yaml = YAML.load yaml
+
+p loaded_yaml
+```
+
+- IOオブジェクトからRubyオブジェクトにするサンプル
+
+```ruby
+require 'yaml'
+
+loaded_yaml = YAML.load DATA
+
+p loaded_yaml
+
+__END__
+- japan
+- america
+- france
+__END__より後続行はDATAを利用することで読み出すことが出来ます。
+```
+
+
+
+## 次のコードを実行するとどうなりますか
+
+```ruby
+CONST_LIST_A = ['001', '002', '003']
+begin
+  CONST_LIST_A.map{|id| id << 'hoge'}
+rescue
+end
+
+CONST_LIST_B = ['001', '002', '003'].freeze
+begin
+  CONST_LIST_B.map{|id| id << 'hoge'}
+rescue
+end
+
+CONST_LIST_C = ['001', '002', '003'].freeze
+begin
+  CONST_LIST_C.map!{|id| id << 'hoge'}
+rescue
+end
+
+CONST_LIST_D = ['001', '002', '003'].freeze
+begin
+  CONST_LIST_D.push('add')
+rescue
+end
+
+p CONST_LIST_A
+p CONST_LIST_B
+p CONST_LIST_C
+p CONST_LIST_D
+```
+
+
+
+### 解説
+
+変数は1文字目を大文字にすると定数になります。定数には次の特徴があります。
+
+代入を行うと警告が発生しますが、値は変更されます。
+中身を直接変更した場合は値が変わります。ただし、警告は発生しません。
+
+特徴1の例
+
+```ruby
+CONST = ["001", "002", "003"]
+CONST = ["A", "B", "C"]
+p CONST
+
+# <実行結果>
+# warning: already initialized constant CONST
+# ["A", "B", "C"]
+```
+
+特徴2の例
+
+```ruby
+CONST = ["001", "002", "003"]
+CONST[0] = "A"
+p CONST
+
+# <実行結果>
+# ["A", "002", "003"]
+```
+
+freezeはオブジェクトを凍結します。凍結されたオブジェクトは次の特徴があります。
+
+1. 破壊的な操作ができません。
+1. オブジェクトの代入ができます。
+1. 自作クラスのインスタンス変数をfreezeしない限り、変更できます。
+
+特徴1の実行結果
+
+```ruby
+hoge = "hoge".freeze
+hoge.upcase!
+p hoge
+
+# <実行結果>
+# RuntimeError: can't modify frozen String
+```
+
+特徴2の実行結果
+
+```ruby
+hoge = "hoge".freeze
+hoge = "foo".freeze
+p hoge
+
+# <実行結果>
+# foo
+```
+
+特徴3の実行結果
+
+```ruby
+class Fish
+  attr_accessor :name
+  def initialize(name)
+    @name = name
+  end
+end
+
+liberty = Fish.new("liberty")
+liberty.name.upcase!
+p liberty
+
+# <実行結果>
+# LIBERTY
 ```
