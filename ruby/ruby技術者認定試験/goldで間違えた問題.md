@@ -235,6 +235,65 @@ NameError: uninitialized constant M::CONST
 
 
 
+### リファレンスより
+
+* `Enumerable#chunk`：要素を前から順にブロックで評価し、その結果によって 要素をチャンクに分けた(グループ化した)要素を持つ Enumerator を返します。
+
+* `Enumerator::Lazy#chunk`：Enumerable#chunk_while と同じですが、Enumerator ではなく Enumerator::Lazy を返します。
+
+```ruby
+# Enumerable#chunk
+>> [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5].chunk {|n|
+>>   n.even?
+>> }.each {|even, ary|
+>>   p [even, ary]
+>> }
+[false, [3, 1]]
+[true, [4]]
+[false, [1, 5, 9]]
+[true, [2, 6]]
+[false, [5, 3, 5]]
+=> nil
+
+# Enumerator::Lazy#chunk
+>> 1.step.lazy.chunk{ |n| n % 3 == 0 }
+=> #<Enumerator::Lazy: #<Enumerator: #<Enumerator::Generator:0x007fc2f1071348>:each>>
+```
+
+* `Enumerator::Lazy#force`：全ての要素を含む配列を返します。Lazy から実際に値を取り出すのに使います。
+
+* `Enumerator::Lazy#first`：Enumerable オブジェクトの最初の要素、もしくは最初の n 要素を返します。
+
+```ruby
+# Enumerator::Lazy#first
+>> 1.step.lazy.first
+=> 1
+
+# Enumerator::Lazy#force
+>> 1.step.lazy.take(5).force
+=> [1, 2, 3, 4, 5]
+```
+
+* `Enumerable#take`：Enumerable オブジェクトの先頭から n 要素を配列として返します。
+
+* `Enumerator::Lazy#take`：Enumerable#take と同じですが、配列ではなくEnumerator::Lazy を返します。
+
+```ruby
+# Enumerable#take
+>> a = [1, 2, 3, 4, 5, 0]
+=> [1, 2, 3, 4, 5, 0]
+>> a.take(3)
+=> [1, 2, 3]
+
+# Enumerator::Lazy#take
+>> 1.step.lazy.take(5)
+=> #<Enumerator::Lazy: #<Enumerator::Lazy: #<Enumerator: 1:step>>:take(5)>
+>> 1.step.lazy.take(5).force
+=> [1, 2, 3, 4, 5]
+```
+
+
+
 ### 解答
 
 ```ruby
@@ -316,6 +375,8 @@ NoMethodError: undefined method 'force' for #<Array:0x007fe94d058a50>
 "011"
 => "011"
 ```
+
+![問題9](./images/gold/問題9.jpg)
 
 
 
@@ -426,7 +487,9 @@ end
 
 問題のコードを`do ... end`で置き換えた場合は以下の実行結果になります。
 
-→こちらの方だと思って解答してしまった(2018/10/26)
+> こちらの方だと思って解答してしまった
+>
+> 2018/10/26
 
 ```ruby
 m1 m2 {  # m1 (m2 { .. } ) と解釈される
@@ -485,6 +548,10 @@ m1 m2 {  # m1 (m2 { .. } ) と解釈される
 
 `initialize`の可視性を`public`に設定したとしても、必ずprivateになります。
 
+> newメソッドの処理の内部でインスタンスの初期化のために使うメソッド
+>
+> インスタンスの外部からは呼び出すことができない
+
 ```ruby
 >> class C
 >> private
@@ -541,6 +608,10 @@ Yukichi
 `method_missing`も継承チェーンを辿ります。
 
 よって、`B#method_missing`が出力されます。
+
+> 現在のクラス・モジュールで`method_missing`があれば実行
+>
+> そうしないと、動的にメソッドを定義するときに不都合になる
 
 ```Ruby
 >> module M
@@ -690,7 +761,7 @@ NameError: undefined method `*' for class `#<Class:#<Object:0x007fc6a60da4c0>>'
 >>   end
 >> end
 => :f
->>
+>> # module_evalは、class_evalと同様
 >> A.module_eval(<<-CODE)
   def self.f
     p B
@@ -705,6 +776,8 @@ CODE
 42
 => 42
 ```
+
+![問題18](./images/gold/問題18.png)
 
 
 
@@ -758,7 +831,7 @@ CODE
 => 2
 >> p1.call("7", "5")
 => 9
->> p1.call("9")
+>> p1.call("9")      # こちらは実行されない
 ArgumentError: wrong number of arguments (given 1, expected 2)
 
 >> p local
@@ -806,7 +879,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => "Good, evening"
 >>
 >> module M
->>   class ::C
+>>   class ::C       # モジュールMでネストされているが、トップレベルのクラスCを指している
 >>     def greet
 >>       CONST
 >>     end
@@ -867,7 +940,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 
 ```ruby
 >> class Object
->>   CONST = "1"
+>>   CONST = "1"                 # 最初の定義(CONST = "1")
 >>   def const_succ
 >>     CONST.succ!
 >>   end
@@ -875,17 +948,17 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => :const_succ
 
 >> class Child1
->>   const_succ
+>>   const_succ                  # 1回目(CONST = "2")
 >>   class << self
->>     const_succ
+>>     const_succ                # 2回目(CONST = "3")
 >>   end
 >> end
 => "3"
 
 >> class Child2
->>   const_succ
+>>   const_succ                  # 3回目(CONST = "4")
 >>   def initialize
->>     const_succ
+>>     const_succ                # 4回目(CONST = "5")
 >>   end
 >> end
 => :initialize
@@ -957,6 +1030,10 @@ p Object::CONST
 
 引数ありのメソッドで引数なしのスーパークラスを呼び出すには、`super()`と明示的に呼び出す必要があります。
 
+> 正解しているけど、念のため
+>
+> 2018/10/28
+
 ```ruby
 >> class S
 >>   def initialize
@@ -987,7 +1064,11 @@ Rubyは定数の参照はレキシカルに決定されますが、この問題�
 レキシカルスコープに定数がない場合は、スーパークラスの探索を行います。
 
 この問題では、クラスC2のスコープで定数を参照しています。
-クラスC2のスーパークラスはクラスCdですので"100"が正解になります。
+クラス`C2`のスーパークラスはクラス`Cd`ですので`"100"`が正解になります。
+
+> 正解しているけど年のため
+>
+> 2018/10/28
 
 ```ruby
 >> class Ca
@@ -1030,66 +1111,87 @@ Rubyは定数の参照はレキシカルに決定されますが、この問題�
 
 ## 次のプログラムを実行するとどうなりますか
 
-module_evalにブロックを渡した場合のネストは次の通りです。
+`module_eval`にブロックを渡した場合のネストは次の通りです。
 
 ```ruby
 A.module_eval do
   p Module.nesting # []と表示され、ネストされた状態になく、トップレベルにいることがわかる
 end
 ```
-トップレベルで定数を定義した場合はObjectの定数になります。
+トップレベルで定数を定義した場合は`Object`の定数になります。
 
 ```ruby
 B = "Hello, world"
 p Object.const_get(:B) # "Hello, world"と表示される
 ```
-問題にあるメソッドA.fはトップレベルにある定数を探索するため答えは15になります。
+問題にあるメソッド`A.f`はトップレベルにある定数を探索するため答えは`15`になります。
+
+> `Module#module_eval`
+>
+> 文字列が与えられた場合には、定数とクラス変数のスコープは自身のモジュール定義式内と同じスコープになります。
+>
+> ブロックが与えられた場合には、定数とクラス変数のスコープはブロックの外側のスコープになります。
 
 ```ruby
 >> module A
 >>   B = 42
 >>
-?>   def f
+>>   def f
 >>     21
 >>   end
 >> end
 => :f
 >>
-?> A.module_eval do
-?>   def self.f
+>> A.module_eval do
+>>   def self.f
 >>     p B
 >>   end
 >> end
 => :f
 >>
-?> B = 15
+>> B = 15
 => 15
 >>
-?> A.f
+>> A.f
 15
 => 15
 ```
+
+![問題26](./images/gold/問題26.png)
 
 
 
 ## 次のコードを実行するとどうなりますか
 
-String#+はStringクラスのオブジェクトを期待します。
-引数にSymbolクラスを渡しているためTypeErrorが発生します。
+`String#+`は`String`クラスのオブジェクトを期待します。
 
-elseブロックは例外が発生しない場合に評価されます。
+引数に`Symbol`クラスを渡しているため`TypeError`が発生します。
+
+> `else`ブロックは例外が発生しない場合に評価されます。
+>
+> 優先順位は、「エラー名指定のrescue」>「エラー名指定なしのrescue」
 
 ```ruby
 >> begin
-?>   print "liberty" + :fish
+>>   print "liberty" + :fish
 >> rescue TypeError
 >>   print "TypeError."
 >> rescue
 >>   print "Error."
 >> else
-?>   print "Else."
+>>   print "Else."
 >> end
 TypeError.=> nil
+
+# 検証
+>> begin
+>>   print "liberty" + :fish
+>> rescue
+>>   print "Error."
+>> else
+>>   print "Else."
+>> end
+Error.=> nil
 ```
 
 
@@ -1097,7 +1199,10 @@ TypeError.=> nil
 ## 次のコードを実行するとどうなりますか
 
 キーワード引数へHashオブジェクトを渡すことができます。
-Hashの中身を渡す必要があるので、変数の前に**を付加します。
+
+Hashの中身を渡す必要があるので、変数の前に`**`を付加します。
+
+> `*`は、Arrayオブジェクトとして渡される
 
 ```ruby
 >> def foo(arg1:100, arg2:200)
@@ -1106,10 +1211,10 @@ Hashの中身を渡す必要があるので、変数の前に**を付加しま�
 >> end
 => :foo
 >>
-?> option = {arg2: 900}
+>> option = {arg2: 900}
 => {:arg2=>900}
 >>
-?> foo arg1: 200, *option
+>> foo arg1: 200, *option
 SyntaxError: (irb):8: syntax error, unexpected *
 ```
 
@@ -1119,13 +1224,17 @@ SyntaxError: (irb):8: syntax error, unexpected *
 
 問題のコードで使用されているメソッド類は以下の通りです。
 
-Kernel#block_given?はブロックが渡された場合は、真になります。
-yieldはブロックの内容を評価します。
-{ }はdo endよりも結合度が高い為、実行結果に差が出ます。
+* `Kernel#block_given?`はブロックが渡された場合は、真になります。
+
+* `yield`はブロックの内容を評価します。
+
+* `{ }`は`do end`よりも結合度が高い為、実行結果に差が出ます。
+
 問題のコードは以下のように解釈されます。
 
-m2へブロックが渡され、m2 helloが表示されます。
-m1へは引数が渡され、ブロックは渡されません。よって、m1が表示されます。
+1. `m2`へブロックが渡され、`m2 hello`が表示されます。
+
+1. `m1`へは引数が渡され、ブロックは渡されません。よって、`m1`が表示されます。
 
 ```ruby
 m1 (m2 {
@@ -1138,7 +1247,7 @@ m1 (m2 {
 # "m1 "
 ```
 
-問題のコードをdo endで置き換えた場合は以下の実行結果になります。
+問題のコードを`do end`で置き換えた場合は以下の実行結果になります。
 
 ```ruby
 m1 m2 do  # m1(m2) do と解釈されます。
@@ -1176,7 +1285,8 @@ end
 
 ## 次のコードを実行するとどうなりますか
 
-1iは複素数(Complex)のオブジェクトを表します。
+`1i`は複素数(Complex)のオブジェクトを表します。
+
 Complex同士の演算はComplexを返します。
 
 ```ruby
@@ -1216,14 +1326,14 @@ Awesome 1
 
 ```ruby
 # 選択肢1
-
 :with_prefix
+
 # 選択肢2
-
 :reverse_each
-# 選択肢3
 
+# 選択肢3
 __method__
+
 # 選択肢4
 :each
 ```
@@ -1233,9 +1343,11 @@ __method__
 
 ブロックを渡さない場合は、Enumeratorオブジェクトを作成してメソッドをチェーン出来るようにします。
 
-Enumeratorオブジェクトを作成するためには、to_enumまたは、enum_forを呼びます。これらの引数にメソッド名をシンボルで指定することでチェーンした先でブロックを渡されたときにどのメソッドを評価すればよいかが分かります。
+Enumeratorオブジェクトを作成するためには、`to_enum`または、`enum_for`を呼びます。
 
-この問題では、with_prefixを再び評価する必要がありますので、`__method__`または:with_prefixを引数に指定します。`__method__`はメソッドの中で呼び出すと、そのメソッド名になります。
+これらの引数にメソッド名をシンボルで指定することでチェーンした先でブロックを渡されたときにどのメソッドを評価すればよいかが分かります。
+
+この問題では、`with_prefix`を再び評価する必要がありますので、`__method__`または:with_prefixを引数に指定します。`__method__`はメソッドの中で呼び出すと、そのメソッド名になります。
 
 ```ruby
 def awesome_method
@@ -1247,14 +1359,45 @@ p awesome_method # :awesome_methodとシンボルでメソッド名が分かり�
 
 
 
+### 文法
+
+* `Enumerator#each`：生成時のパラメータに従ってブロックを繰り返します。
+
+  →`each do |f| ~ end`のインスタンスメソッド
+
+* `to_enum`・`enum_for`：レシーバのオブジェクトと列挙用のメソッドを元にしてEnumeratorオブジェクトを作成します。
+
+  →Enumeratorクラスの`new`メソッドを使って、`Enumerator.new(obj, method, arg)`とするのと同じです。
+
+  →引数`method`には、メソッドの名前をシンボルか文字列で渡します。`method`を指定しないと`each`メソッドが使われます。
+
+  ```ruby
+  >> enum = "hello".enum_for(:each_byte)
+  => #<Enumerator: "hello":each_byte>
+  >> p enum.collect {|byte| byte.to_s(16) }
+  ["68", "65", "6c", "6c", "6f"]
+  => ["68", "65", "6c", "6c", "6f"]
+  ```
+
+
+
 ## 次のコードを実行するとどうなりますか
 
-method_missingは、継承チェーンを辿った末にメソッドが見つからなかった場合に、呼び出されます。
-method_missingも継承チェーンを辿ります。
+`method_missing`は、継承チェーンを辿った末にメソッドが見つからなかった場合に、呼び出されます。
 
-問題で、B.dummy_methodと呼び出しています。
+`method_missing`も継承チェーンを辿ります。
+
+問題で、`B.dummy_method`と呼び出しています。
+
 これは、Classクラスのインスタンスメソッドが呼ばれます。
-よって、Class#method_missingが出力されます。
+
+よって、`Class#method_missing`が出力されます。
+
+> ClassクラスのオブジェクトがBクラス
+>
+> `dummy_method`は、Bから見ればクラスメソッドだが、Classから見ればBのインスタンスメソッド
+>
+> Bのインスタンスメソッドが見つからない場合は、Classのインスタンスメソッドを呼び出す
 
 ```ruby
 >> class Class
@@ -1276,7 +1419,7 @@ method_missingも継承チェーンを辿ります。
 >> end
 => :method_missing
 >>
-?> B.dummy_method
+>> B.dummy_method
 Class#method_missing
 => nil
 ```
@@ -1286,44 +1429,60 @@ Class#method_missing
 ## 次のコードを実行するとどうなりますか。
 
 定数はインスタンスではなくクラスに存在します。
-定数の探索順位はクラス内 -> スーパークラス -> クラス探索順に行われます。
 
-よって、Human#nameのクラス内定数であるNAME = "Unknown"が返されます。
+定数の探索順位は`クラス内 -> スーパークラス -> クラス探索`順に行われます。
+
+よって、`Human#name`のクラス内定数である`NAME = "Unknown"`が返されます。
 
 ```ruby
 >> class Human
 >>   NAME = "Unknown"
 >>
-?>   def name
+>>   def name
 >>     NAME
 >>   end
 >> end
 => :name
 >>
-?> class Noguchi < Human
+>> class Noguchi < Human
 >>   NAME = "Hideyo"
 >> end
 => "Hideyo"
 >>
-?> puts Noguchi.new.name
+>> puts Noguchi.new.name
 Unknown
 => nil
 ```
+
+![問題34](./images/gold/問題34.png)
 
 
 
 ## 次のコードを実行するとどうなりますか
 
-Array#sortは比較に<=>を使用しています。
+`Array#sort`は比較に`<=>`を使用しています。
+
 自作クラスの場合はオブジェクトIDが比較対象となります。
 
-Fixnum#<=>(other)は以下の結果を返します。
+`Fixnum#<=>(other)`は以下の結果を返します。
 
-selfがotherより大きい場合は、1を返します。
-selfがotherと等しい場合は、0を返します。
-selfがotherより小さい場合は、-1を返します。
-問題のコードでは、sortは非破壊的メソッドです。
-よってputs時点ではソートが行われずに配列へ挿入した順番に表示されます。
+* `self`が`other`より大きい場合は、`1`を返します。
+
+* `self`が`other`と等しい場合は、`0`を返します。
+
+* `self`が`other`より小さい場合は、`-1`を返します。
+
+問題のコードでは、`sort`は非破壊的メソッドです。
+
+よって`puts`時点ではソートが行われずに配列へ挿入した順番に表示されます。
+
+> `puts`
+>
+> 引数のオブジェクトを文字列に変換し、改行を加えて標準出力に出力。
+>
+> `to_s`メソッドで文字列に変換される。
+
+※組み込みクラスのクラスメソッドのモンキーパッチをここでは行なっている
 
 ```ruby
 >> class Company
@@ -1342,7 +1501,7 @@ selfがotherより小さい場合は、-1を返します。
 >> end
 => :<=>
 >>
-?> companies = []
+>> companies = []
 => []
 >> companies << Company.new(2, 'Liberyfish')
 => [#<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">]
@@ -1351,11 +1510,11 @@ selfがotherより小さい場合は、-1を返します。
 >> companies << Company.new(1, 'Freedomfish')
 => [#<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">, #<Company:0x007fe8681834d8 @id=3, @name="Freefish">, #<Company:0x007fe86911d998 @id=1, @name="Freedomfish">]
 >>
-?> companies.sort
+>> companies.sort
 => [#<Company:0x007fe86911d998 @id=1, @name="Freedomfish">, #<Company:0x007fe8691249a0 @id=2, @name="Liberyfish">, #<Company:0x007fe8681834d8 @id=3, @name="Freefish">]
 >>
-?> companies.each do |e|
-?>   puts e
+>> companies.each do |e|
+>>   puts e
 >> end
 2:Liberyfish
 3:Freefish
@@ -1406,9 +1565,15 @@ enum_for
 
 ### 解説
 
-ブロックを渡さない場合は、Enumeratorオブジェクトを作成してメソッドをチェーン出来るようにします。また、ブロックを渡す場合はyieldで評価してブロックを評価します。
+ブロックを渡さない場合は、Enumeratorオブジェクトを作成してメソッドをチェーン出来るようにします。
 
-内部イテレータを実装する場合は次のような構造になることが多いです。レシーバーの配列の要素に対して、stepだけ数値を進めるようなイテレータを作ります。簡単化の為、整数値しかない配列だけを想定します。
+また、ブロックを渡す場合は`yield`で評価してブロックを評価します。
+
+内部イテレータを実装する場合は次のような構造になることが多いです。
+
+レシーバーの配列の要素に対して、`step`だけ数値を進めるようなイテレータを作ります。
+
+簡単化の為、整数値しかない配列だけを想定します。
 
 ```ruby
 class Array
@@ -1426,19 +1591,21 @@ class Array
 end
 ```
 
-to_enumまたは、enum_forでEnumeratorオブジェクトを作成しますが引数に実行対象のメソッド名をシンボルで指定します。
-先程のサンプルコードではto_enum(:succ_each, step)と書いていますが、これはto_enum(`__method__`, step)と書くのと同じです
-。`__method__`は実行中のメソッドをシンボルで返します。
+`to_enum`または、`enum_for`でEnumeratorオブジェクトを作成しますが、引数に実行対象のメソッド名をシンボルで指定します。
+
+先程のサンプルコードでは`to_enum(:succ_each, step)`と書いていますが、これは`to_enum(__method__, step)`と書くのと同じです
+
+`__method__`は実行中のメソッドをシンボルで返します。
 
 
 
 ## 次のコードを実行するとどうなりますか
 
-引数なしでraiseを呼び出すと、RuntimeError例外が発生します。
+引数なしで`raise`を呼び出すと、`RuntimeError`例外が発生します。
 
 ```ruby
 >> begin
-?>   raise
+>>   raise
 >> rescue => e
 >>   puts e.class
 >> end
@@ -1450,13 +1617,15 @@ RuntimeError
 
 ## 次のコードを実行するとどうなりますか
 
-raiseの例外クラスを省略した場合は、RuntimeErrorを発生させます。
-rescueの例外クラスを省略した場合は、StandardErrorを捕捉します。
-RuntimeErrorはstanderdErrorのサブクラスです。
+`raise`の例外クラスを省略した場合は、`RuntimeError`を発生させます。
+
+`rescue`の例外クラスを省略した場合は、`StandardError`を捕捉します。
+
+`RuntimeError`は`StanderdError`のサブクラスです。
 
 ```ruby
 >> begin
-?>   raise "Err!"
+>>   raise "Err!"
 >> rescue => e
 >>   puts e.class
 >> end
@@ -1499,13 +1668,19 @@ RuntimeError
 => "Good, evening"
 ```
 
+> 正解していたが、念のため
+>
+> 2018/10/28
+
 
 
 ### 解説
 
-クラスK::PにあるクラスM::Cはトップレベルにあるものとは異なります。
+クラス`K::P`にあるクラス`M::C`はトップレベルにあるものとは異なります。
+
 ネスト状態が同じものがあれば、そのレキシカルスコープから定数の探索を行います。
-この問題では定数CONSTが参照しているのはK::P::M::Cで、そのレキシカルスコープにある定数を探索しますので"Good, evening"と表示されます。
+
+この問題では定数`CONST`が参照しているのは`K::P::M::C`で、そのレキシカルスコープにある定数を探索しますので`"Good, evening"`と表示されます。
 
 ```ruby
 module K
@@ -1545,7 +1720,7 @@ end
 >> end
 => :initialize
 >>
-?> class C < S
+>> class C < S
 >>   def initialize(*args)
 >>     super
 >>     puts "C#initialize"
@@ -1553,7 +1728,7 @@ end
 >> end
 => :initialize
 >>
-?> C.new(1,2,3,4,5)
+>> C.new(1,2,3,4,5)
 ArgumentError: wrong number of arguments (given 5, expected 0)
 ```
 
@@ -1561,14 +1736,15 @@ ArgumentError: wrong number of arguments (given 5, expected 0)
 
 ### 解説
 
-問題のコードはArgumentError: wrong number of arguments (5 for 0)が発生します。
+問題のコードは`ArgumentError: wrong number of arguments (5 for 0)`が発生します。
 
-superと呼び出した場合は、現在のメソッドと同じ引数が引き継がれます。
-引数を渡さずにオーバーライドしたメソッドを呼び出す際はsuper()とします。
+`super`と呼び出した場合は、現在のメソッドと同じ引数が引き継がれます。
+
+引数を渡さずにオーバーライドしたメソッドを呼び出す際は`super()`とします。
 
 問題のコードは次のように修正します。
 
-修正後
+### 修正後
 
 ```ruby
 class S
@@ -1621,13 +1797,21 @@ __(1)__ ruby fiber.yield
 __(2)__ ruby Fiber.resume
 ```
 
+> 正解していたが、年のため
+>
+> 2018/10/28
+
 
 
 ### 解説
 
-Fiberは軽量スレッドを提供します。
+`Fiber`は軽量スレッドを提供します。
 
-Fiber#resumeを実行するとFiber.yieldが最後に実行された行から再開するか、Fiber.newに指定したブロックの最初の評価を行います。
+`Fiber#resume`を実行すると、以下の2通りの方法が考えられる
+
+* `Fiber.yield`が最後に実行された行から再開
+
+* `Fiber.new`に指定したブロックの最初の評価を行います。
 
 サンプルプログラムを実行して、処理の内容を見てみましょう
 
@@ -1640,20 +1824,27 @@ p f.resume('Matz') # 'Hi, Matz'と表示されます。
 ```
 
 
-1. f.resume('Matz')を実行する。
-1. Fiber.newのブロックを評価し、引数nameには'Matz'をセットする。
-1. 変数を展開して、'Hi, Matz'をFiber.yieldの引数にセットする。
-1. Fiber.yield('Hi, Matz')を実行すると、f.resume('Matz')の戻り値が'Hi, Matz'になる。
-1. Fiber.yield('Hi, Matz')の実行終了を待たずに、プログラムが終了する。
+1. `f.resume('Matz')`を実行する。
+
+1. `Fiber.new`のブロックを評価し、引数`name`には`'Matz'`をセットする。
+
+1. 変数を展開して、`'Hi, Matz'`を`Fiber.yield`の引数にセットする。
+
+1. `Fiber.yield('Hi, Matz')`を実行すると、`f.resume('Matz')`の戻り値が`'Hi, Matz'`になる。
+
+1. `Fiber.yield('Hi, Matz')`の実行終了を待たずに、プログラムが終了する。
 
 問題のプログラムの期待値を得る組み合わせは次のとおりです。
 
 ```ruby
-fiber = Fiber.new do
-  Fiber.yield 'Hi, there!'
-end
-
-p fiber.resume
+>> fiber = Fiber.new do
+>>   Fiber.yield 'Hi, there!'
+>> end
+=> #<Fiber:0x007febba840168>
+>>
+>> p fiber.resume
+"Hi, there!"
+=> "Hi, there!"
 ```
 
 
@@ -1661,99 +1852,126 @@ p fiber.resume
 ## 次のプログラムと同じ実行結果が得られる実装を選択肢から選んでください。
 
 ```ruby
-class Array
-  def succ_each(step = 1)
-    return enum_for(:succ_each, step) unless block_given?
-
-    each do |int|
-      yield int + step
-    end
-  end
-end
-
-p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
-
-[101, 102, 103].succ_each(5) do |succ_chr|
-  p succ_chr.chr
-end
-
-# 実行結果
+>> class Array
+>>   def succ_each(step = 1)
+>>     return enum_for(:succ_each, step) unless block_given?
+>>
+>>     each do |int|
+>>       yield int + step
+>>     end
+>>   end
+>> end
+=> :succ_each
+>>
+>> p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
 ["d", "e", "f"]
+=> ["d", "e", "f"]
+>>
+>> [101, 102, 103].succ_each(5) do |succ_chr|
+>>   p succ_chr.chr
+>> end
 "j"
 "k"
 "l"
+=> [101, 102, 103]
 ```
 
-選択肢
 
 ```ruby
-# 1
-class Array
-  def succ_each(step = 1)
-    return each(:succ_each) unless block_given?
+# 選択肢1
+>> class Array
+>>   def succ_each(step = 1)
+>>     return each(:succ_each) unless block_given?
+>>
+>>     each do |int|
+>>       yield int + step
+>>     end
+>>   end
+>> end
+=> :succ_each
+>>
+>> p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}     # to_enumを使用していないので、エラー
+ArgumentError: wrong number of arguments (given 1, expected 0)
+>>
+>> [101, 102, 103].succ_each(5) do |succ_chr|
+>>   p succ_chr.chr
+>> end
+"j"
+"k"
+"l"
+=> [101, 102, 103]
+```
 
-    each do |int|
-      yield int + step
-    end
-  end
-end
+```ruby
+# 選択肢2
+>> class Array
+>>   def succ_each(step = 1)
+>>     return to_enum(:succ_each) unless block_given?
+>>
+>>     each do |int|
+>>       yield int + step
+>>     end
+>>   end
+>> end
+=> :succ_each
+>>
+>> p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
+["c", "d", "e"]
+=> ["c", "d", "e"]
+>>
+>> [101, 102, 103].succ_each(5) do |succ_chr|
+>>   p succ_chr.chr
+>> end
+"j"
+"k"
+"l"
+=> [101, 102, 103]
+```
 
-p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
-
-[101, 102, 103].succ_each(5) do |succ_chr|
-  p succ_chr.chr
-end
-
-# 2
-class Array
-  def succ_each(step = 1)
-    return to_enum(:succ_each) unless block_given?
-
-    each do |int|
-      yield int + step
-    end
-  end
-end
-
-p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
-
-[101, 102, 103].succ_each(5) do |succ_chr|
-  p succ_chr.chr
-end
-
+```ruby
 # 3
-class Array
-  def succ_each(step = 1)
-    return to_enum(:succ_each, step) unless block_given?
+>> class Array
+>>   def succ_each(step = 1)
+>>     return to_enum(:succ_each, step) unless block_given?
+>>
+>>     each do |int|
+>>       yield int + step
+>>     end
+>>   end
+>> end
+=> :succ_each
+>>
+>> p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
+["d", "e", "f"]
+=> ["d", "e", "f"]
+>>
+>> [101, 102, 103].succ_each(5) do |succ_chr|
+>>   p succ_chr.chr
+>> end
+"j"
+"k"
+"l"
+=> [101, 102, 103]
+```
 
-    each do |int|
-      yield int + step
-    end
-  end
-end
-
-p [98, 99, 100].succ_each(2).map {|succ_chr| succ_chr.chr}
-
-[101, 102, 103].succ_each(5) do |succ_chr|
-  p succ_chr.chr
-end
-
+```ruby
 # 4
-class Array
-  def succ_each(step = 1)
-    unless block_given?
-      Enumerator.new do |yielder|
-        each do |int|
-          yielder << int + step
-        end
-      end
-    else
-      each do |int|
-        yield int + step
-      end
-    end
-  end
-end
+>> class Array
+>>   def succ_each(step = 1)
+>>     unless block_given?
+>>       Enumerator.new do |yielder|
+>>         each do |int|
+>>           yielder << int + step
+>>         end
+>>       end
+>>     else
+>>       each do |int|
+>>         yield int + step
+>>       end
+>>     end
+>>   end
+>> end
+=> :succ_each
 ```
 
 
@@ -1761,12 +1979,19 @@ end
 ### 解説
 
 ブロックを渡す場合と、チェーンを行う場合の両方を考慮する必要があります。
-チェーンを行う場合はEnumeratorオブジェクトを作成する必要があります。作成に必要なメソッドはenum_forとto_enumです。
 
-問題では、enum_forを使っていますので選択肢のうちto_enumを使っている選択肢が答えのひとつです。
-ただし、to_enumは引数にメソッド名とそのメソッドに必要な引数を指定する必要があります。問題ではsucc_eachメソッドに引数2を渡していますのでEnumeratorオブジェクトを作成するときに必要になります。
+チェーンを行う場合はEnumeratorオブジェクトを作成する必要があります。
 
-また、Enumeratorオブジェクトはnewメソッドで作成することが出来ます。この問題ですと少し冗長ではありますが、全体的には次のとおりです。
+→作成に必要なメソッド：`enum_for`・`to_enum`
+
+
+問題では、`enum_for`を使っていますので選択肢のうち`to_enum`を使っている選択肢が答えのひとつです。
+
+ただし、`to_enum`は引数にメソッド名と、そのメソッドに必要な引数を指定する必要があります。
+
+問題では`succ_each`メソッドに引数2を渡していますので、Enumeratorオブジェクトを作成するときに必要になります。
+
+また、Enumeratorオブジェクトは`new`メソッドで作成することが出来ます。この問題ですと少し冗長ではありますが、全体的には次のとおりです。
 
 ```ruby
 class Array
@@ -1787,10 +2012,11 @@ end
 ```
 
 
-これも答えのひとつで、この問題ではto_enum(:succ_each, step)とEnumeratorオブジェクトを作成する選択肢が答えになります。
+これも答えのひとつで、この問題では`to_enum(:succ_each, step)`とEnumeratorオブジェクトを作成する選択肢が答えになります。
 
-なお、チェーンした先で渡されたブロックを評価するためにはEnumerator::Yielderのオブジェクトを利用します。
-オブジェクトに対して、<<を実行することでブロック内で評価した結果を受け取ることが出来ます。
+なお、チェーンした先で渡されたブロックを評価するためには`Enumerator::Yielder`のオブジェクトを利用します。
+
+オブジェクトに対して、`<<`を実行することでブロック内で評価した結果を受け取ることが出来ます。
 
 
 
@@ -1810,98 +2036,128 @@ end
 puts $num
 ```
 
+> 正解しているけど、年のため
+>
+> 2018/10/28
+
 
 
 ### 解説
 
-loadはRubyプログラムをロードします。
+`load`はRubyプログラムをロードします。
 
-requireとloadの違い
 
-* requireは同じファイルは1度のみロードする、loadは無条件にロードする。
-* requireは.rbや.soを自動補完する、loadは補完は行わない。
-* requireはライブラリのロード、loadは設定ファイルの読み込みに用いる。
+
+### `require`と`load`の違い
+
+* `require`は同じファイルは1度のみロードする、`load`は無条件にロードする。
+
+* `require`は`.rb`や`.so`を自動補完する、`load`は補完は行わない。
+
+* `require`はライブラリのロード、`load`は設定ファイルの読み込みに用いる。
 
 
 
 ## 次のプログラムと同じく特異クラスを取得する選択肢を選んでください。
 
 ```ruby
-class C
-  def self._singleton
-    class << C
-      self
-    end
-  end
-end
-
-p C._singleton
+>> class C
+>>   def self._singleton
+>>     class << C
+>>       self
+>>     end
+>>   end
+>> end
+=> :_singleton
+>>
+>> p C._singleton
+#<Class:C>
+=> #<Class:C>
 ```
 
-選択肢
+```ruby
+# 選択肢1
+>> class C
+>>   def self._singleton
+>>     class << C
+>>       val = self
+>>     end
+>>     val
+>>   end
+>> end
+=> :_singleton
+>>
+?> p C._singleton
+NameError: undefined local variable or method 'val' for C:Class
+```
 
 ```ruby
-# 1
-class C
-  def self._singleton
-    class << C
-      val = self
-    end
-    val
-  end
-end
+# 選択肢2
+>> class C
+>> end
+=> nil
+>>
+>> def C._singleton
+>>   self
+>> end
+=> :_singleton
+>>
+>> p C._singleton
+C
+=> C
+```
 
-p C._singleton
+```ruby
+# 選択肢3
+>> class C
+>> end
+=> nil
+>>
+>> class << C
+>>   def _singleton
+>>     self
+>>   end
+>> end
+=> :_singleton
+>>
+>> p C._singleton
+C
+=> C
+```
 
-# 2
-class C
-end
-
-def C._singleton
-  self
-end
-
-p C._singleton
-
-# 3
-class C
-end
-
-class << C
-  def _singleton
-    self
-  end
-end
-
-p C._singleton
-
-# 4
-class C
-end
-p C.singleton_class
+```ruby
+# 選択肢4
+>> class C
+>> end
+=> nil
+>> p C.singleton_class
+#<Class:C>
+=> #<Class:C>
 ```
 
 
 
 ### 解説
 
-Object.singleton_classを利用すると特異クラスを取得することが出来ます。
+`Object.singleton_class`を利用すると特異クラスを取得することが出来ます。
 
-特異クラスでselfを参照するとレシーバのオブジェクトがとれます。この選択肢では、クラスCが取得できます。
+特異クラスで`self`を参照するとレシーバのオブジェクトがとれます。この選択肢では、クラス`C`が取得できます。
 
 また、特異クラス定義では新しくスコープが作られますので次のプログラムでは例外が発生します。
 
 ```ruby
-class C
-  def self._singleton
-    class << C
-      val = self # 特異クラスのみ有効なローカル変数
-    end
-    val
-  end
-end
-
-p C._singleton
+>> class C
+>>   def self._singleton
+>>     class << C
+>>       val = self # 特異クラスのみ有効なローカル変数
+>>     end
+>>     val
+>>   end
+>> end
+=> :_singleton
+>>
+>> p C._singleton
+NameError: undefined local variable or method 'val' for C:Class
 ```
 
 
@@ -1909,40 +2165,54 @@ p C._singleton
 ## 次のプログラムを実行するとどうなりますか
 
 ```ruby
-class Base
-  def name
-    p 'Base#name'
-  end
-end
-
-module Scope
-  class Base
-    def name
-      p 'Scope::Base#name'
-    end
-  end
-
-  class Inherited < Base
-    def name
-      p 'Scope::Inherited#name'
-      super
-    end
-  end
-end
-
-inherited = Scope::Inherited.new
-inherited.name
+>> class Base
+>>   def name
+>>     p 'Base#name'
+>>   end
+>> end
+=> :name
+>>
+>> module Scope
+>>   class Base
+>>     def name
+>>       p 'Scope::Base#name'
+>>     end
+>>   end
+>>
+>>   class Inherited < Base
+>>     def name
+>>       p 'Scope::Inherited#name'
+>>       super
+>>     end
+>>   end
+>> end
+=> :name
+>>
+>> inherited = Scope::Inherited.new
+=> #<Scope::Inherited:0x007fc6239b08c0>
+>> inherited.name
+"Scope::Inherited#name"
+"Scope::Base#name"
+=> "Scope::Base#name"
 ```
+
+> 正解だが、一応載せる
+>
+> 2018/10/28
 
 
 
 ### 解説
 
-クラスInheritedの親クラスBaseがどのように決定されるかがこの問題のポイントです。
+クラス`Inherited`の親クラス`Base`がどのように決定されるかがこの問題のポイントです。
+
 クラスはRubyでは定数です。定数の探索はレキシカルスコープを利用します。
 
-親クラスBaseの探索はモジュールScopeから始まります。
-レキシカルスコープにクラス（定数）Baseが見つかったので、クラスInheritedの親クラスBaseはScope::Baseとなります。
+親クラス`Base`の探索はモジュール`Scope`から始まります。
+
+レキシカルスコープにクラス（定数）`Base`が見つかったので、
+
+クラス`Inherited`の親クラス`Base`は`Scope::Base`となります。
 
 ```ruby
 class Base
@@ -1967,8 +2237,9 @@ module Scope
 end
 ```
 
-もし、クラスBaseがクラスInheritedより前に定義されていないのであれば動作が変わります。
-継承を定義した時点でScope::BaseをRubyは見つけることができないので、親クラスBaseはトップレベルにあるクラスを参照します。
+もし、クラス`Base`がクラス`Inherited`より前に定義されていないのであれば動作が変わります。
+
+継承を定義した時点で`Scope::Base`をRubyは見つけることができないので、親クラス`Base`はトップレベルにあるクラスを参照します。
 
 ```ruby
 class Base
@@ -2004,19 +2275,17 @@ inherited.name
 
 ## Kernelモジュールで定義されているメソッドを選んでください。
 
-選択肢
-
 ```ruby
-# 1
+# 選択肢1
 Kernel#String
 
-# 2
+# 選択肢2
 Kernel#Array
 
-# 3
+# 選択肢3
 Kernel#Date
 
-# 4
+# 選択肢4
 Kernel#Hash
 ```
 
@@ -2024,8 +2293,9 @@ Kernel#Hash
 
 ### 解説
 
-Kernel#Array、Kernel#Hash、Kernel#StringはKernelのモジュール関数として定義されています。
-Kernel#Dateはありません。
+`Kernel#Array`、`Kernel#Hash`、`Kernel#String`はKernelのモジュール関数として定義されています。
+
+`Kernel#Date`はありません。
 
 これらのメソッドは次のように使います。
 
@@ -2059,18 +2329,24 @@ p object
 {"sum"=>510, "orders"=>[260, 250]}
 ```
 
+> 正解しているけど、一応載せる
+>
+> 2018/10/28
+
 
 
 ### 解説
 
 文字列のYAMLデータをHashオブジェクトにしています。
 
-YAML.loadは引数を１つ取り、YAMLデータをRubyオブジェクトにします。
+`YAML.load`は引数を１つ取り、YAMLデータをRubyオブジェクトにします。
+
 引数は文字列でも良いですし、IOオブジェクトでも良いです。
 
-read、new、openはYAMLモジュールにないメソッドです。
+`read`、`new`、`open`はYAMLモジュールにないメソッドです。
 
 文字列からRubyオブジェクトにするサンプル
+
 ```ruby
 require 'yaml'
 
@@ -2086,7 +2362,7 @@ loaded_yaml = YAML.load yaml
 p loaded_yaml
 ```
 
-- IOオブジェクトからRubyオブジェクトにするサンプル
+*  IOオブジェクトからRubyオブジェクトにするサンプル
 
 ```ruby
 require 'yaml'
@@ -2099,52 +2375,72 @@ __END__
 - japan
 - america
 - france
-__END__より後続行はDATAを利用することで読み出すことが出来ます。
 ```
+
+`__END__`より後続行はDATAを利用することで読み出すことが出来ます。
 
 
 
 ## 次のコードを実行するとどうなりますか
 
 ```ruby
-CONST_LIST_A = ['001', '002', '003']
-begin
-  CONST_LIST_A.map{|id| id << 'hoge'}
-rescue
-end
-
-CONST_LIST_B = ['001', '002', '003'].freeze
-begin
-  CONST_LIST_B.map{|id| id << 'hoge'}
-rescue
-end
-
-CONST_LIST_C = ['001', '002', '003'].freeze
-begin
-  CONST_LIST_C.map!{|id| id << 'hoge'}
-rescue
-end
-
-CONST_LIST_D = ['001', '002', '003'].freeze
-begin
-  CONST_LIST_D.push('add')
-rescue
-end
-
-p CONST_LIST_A
-p CONST_LIST_B
-p CONST_LIST_C
-p CONST_LIST_D
+>> CONST_LIST_A = ['001', '002', '003']
+=> ["001", "002", "003"]
+>> begin
+>>   CONST_LIST_A.map{|id| id << 'hoge'}
+>> rescue
+>> end
+=> ["001hoge", "002hoge", "003hoge"]
+>>
+>> CONST_LIST_B = ['001', '002', '003'].freeze
+=> ["001", "002", "003"]
+>> begin
+>>   CONST_LIST_B.map{|id| id << 'hoge'}
+>> rescue
+>> end
+=> ["001hoge", "002hoge", "003hoge"]
+>>
+>> CONST_LIST_C = ['001', '002', '003'].freeze
+=> ["001", "002", "003"]
+>> begin
+>>   CONST_LIST_C.map!{|id| id << 'hoge'}      # 元の配列は変わらない
+>> rescue
+>> end
+=> nil
+>>
+>> CONST_LIST_D = ['001', '002', '003'].freeze
+=> ["001", "002", "003"]
+>> begin
+>>   CONST_LIST_D.push('add')
+>> rescue
+>> end
+=> nil
+>>
+>> p CONST_LIST_A
+["001hoge", "002hoge", "003hoge"]
+=> ["001hoge", "002hoge", "003hoge"]
+>> p CONST_LIST_B
+["001hoge", "002hoge", "003hoge"]
+=> ["001hoge", "002hoge", "003hoge"]
+>> p CONST_LIST_C
+["001", "002", "003"]
+=> ["001", "002", "003"]
+>> p CONST_LIST_D
+["001", "002", "003"]
+=> ["001", "002", "003"]
 ```
 
 
 
 ### 解説
 
+#### 定数
+
 変数は1文字目を大文字にすると定数になります。定数には次の特徴があります。
 
-代入を行うと警告が発生しますが、値は変更されます。
-中身を直接変更した場合は値が変わります。ただし、警告は発生しません。
+1. 代入を行うと警告が発生しますが、値は変更されます。
+
+1. 中身を直接変更した場合は値が変わります。ただし、警告は発生しません。
 
 特徴1の例
 
@@ -2169,11 +2465,15 @@ p CONST
 # ["A", "002", "003"]
 ```
 
-freezeはオブジェクトを凍結します。凍結されたオブジェクトは次の特徴があります。
+### `freeze`
+
+`freeze`はオブジェクトを凍結します。凍結されたオブジェクトは次の特徴があります。
 
 1. 破壊的な操作ができません。
+
 1. オブジェクトの代入ができます。
-1. 自作クラスのインスタンス変数をfreezeしない限り、変更できます。
+
+1. 自作クラスのインスタンス変数を`freeze`しない限り、変更できます。
 
 特徴1の実行結果
 
@@ -2214,3 +2514,37 @@ p liberty
 # <実行結果>
 # LIBERTY
 ```
+
+
+
+### 文法
+
+* `map`：要素の数だけ繰り返しブロックを実行し、ブロックの戻り値を集めた配列を作成して返します
+
+* `map!`：要素の数だけ繰り返しブロックを実行し、各要素をブロックの戻り値と入れ替えます
+
+  書き換えられる値は`map`メソッドで指定した変数のみであり、元の配列の値自体は変更されません。
+
+```ruby
+# mapメソッド
+>> numbers = ["68", "65", "6C", "6C", "6F"]
+=> ["68", "65", "6C", "6C", "6F"]
+>> p numbers.map {|item| item.to_i(16) }
+[104, 101, 108, 108, 111]
+=> [104, 101, 108, 108, 111]
+
+# map!メソッド
+>> numbers = [104, 101, 108, 108, 111]
+=> [104, 101, 108, 108, 111]
+>> numbers.map! {|item| item.to_s(16) }
+=> ["68", "65", "6c", "6c", "6f"]
+>> p numbers
+["68", "65", "6c", "6c", "6f"]
+=> ["68", "65", "6c", "6c", "6f"]
+```
+
+
+
+| 版 | 年/月/日  |
+|---|----------|
+|初版|2018/10/28|
