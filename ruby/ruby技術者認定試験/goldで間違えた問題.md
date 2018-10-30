@@ -124,7 +124,7 @@ NameError: uninitialized constant M::C::CONST
 => "Hello, world"
 ```
 
-![問題1_選択肢3](./images/gold/問題1_選択肢3,png)
+![問題1_選択肢3](./images/gold/問題1_選択肢3.png)
 
 
 
