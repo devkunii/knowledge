@@ -34,13 +34,15 @@ goldで間違えた問題
 
 → **クラス継承** と **継承関係** は関係ない!!!
 
+→自分自身に一番近い定数を参照する
+
 ```ruby
 >> module M
 >>   CONST = "Hello, world"
 >> end
 => "Hello, world"
->>
-?> class M::C
+
+>> class M::C
 >>   def awesome_method
 >>     CONST
 >>   end
@@ -320,7 +322,7 @@ NoMethodError: undefined method 'force' for #<Array:0x007fe94d058a50>
 
 `include`はモジュールのメソッドをインスタンスメソッドとして追加します。
 
-メソッド探索順は`self`の後に追加されます。
+メソッド探索順は`self`(クラス)の後に追加されます。
 
 複数回`include`された場合は、後に宣言された方からメソッド探索されます。
 
