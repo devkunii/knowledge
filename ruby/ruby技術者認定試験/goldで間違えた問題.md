@@ -1014,7 +1014,7 @@ class Child2
   end
 end
 
-Child1.new # "4"のまま
+Child1.new # "4"のまま・・・継承していないので、初期化はされない
 Child2.new # "5"になる
 
 p Object::CONST
@@ -1066,7 +1066,7 @@ Rubyは定数の参照はレキシカルに決定されますが、この問題�
 
 レキシカルスコープに定数がない場合は、スーパークラスの探索を行います。
 
-この問題では、クラスC2のスコープで定数を参照しています。
+この問題では、クラス`C2`のスコープで定数を参照しています。
 
 クラス`C2`のスーパークラスはクラス`Cd`ですので`"100"`が正解になります。
 
@@ -1354,11 +1354,14 @@ Enumeratorオブジェクトを作成するためには、`to_enum`または、`
 この問題では、`with_prefix`を再び評価する必要がありますので、`__method__`または:with_prefixを引数に指定します。`__method__`はメソッドの中で呼び出すと、そのメソッド名になります。
 
 ```ruby
-def awesome_method
-  __method__
-end
+>> def awesome_method
+>>   __method__
+>> end
+=> :awesome_method
 
-p awesome_method # :awesome_methodとシンボルでメソッド名が分かります
+>> p awesome_method
+:awesome_method
+=> :awesome_method # :awesome_methodとシンボルでメソッド名が分かります
 ```
 
 
