@@ -37,7 +37,6 @@ goldで間違えた問題2
 > 2018/11/02
 
 ```ruby
->> ^C
 >> class C
 >>   @val = 3
 >>   attr_accessor :val

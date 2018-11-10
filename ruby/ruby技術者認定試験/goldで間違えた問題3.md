@@ -897,4 +897,4 @@ RuntimeError: cannot modify frozen String
 
 |  版  | 年/月/日 |
 |-----|----------|
-| 初版 |2018/10/13|
+| 初版 |2018/11/03|
