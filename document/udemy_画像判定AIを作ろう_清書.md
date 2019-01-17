@@ -41,46 +41,13 @@
 
 https://repo.continuum.io/archive/
 
->当社ではWindowsを使用しているのですが、私のコンピュータはMacなので、少しインストールに困りました(プログラミングを始めてからずっとそうですが笑)
->
->それは置いといて、実はMacには既にPythonがインストールされています！
->
->ですが、Python2なので、本教材には全く適合しない...
->
-> 後日ですが、Python2とPython3では大幅に変更されている点があるので、
-> Python3では動いても、Python2では動かないこともあるそうです
->
->私が学習した時には`Python3.7`が表示されていたのでそのままインストールしました。
->
-> その後ですが、全くライブラリが思うように動いてくれないので仕方なくアンインストール。
->
-> そのため、インストールには注意をしてください
-
 次に、`Anaconda`上で`TensorFlow`という機械学習用のライブラリをインストールします
 
 このインストールが成功したら、成功です！
 
->このライブラリはGoogleがオープンソースで公開しているライブラリのなので、
->
->本音を言うと、機械学習がどのように行われているかを知りません。
->
->そのため、機械学習について、基礎的な部分から学習する必要があると思いました
-
-> Railsチュートリアルでも、初めからログイン・ログアウトの部分をgemに頼らないので...
-
 その後、`TensorFlow`のGPU版のインストールでした。
 
 しかし、NVIDIA製のマシンでなればインストールができないとのことなので、私はスキップしました。
-
-> GPUはCPUと異なり、単純計算に優れているものだそうで、ゲーム用のコンピュータで多用されているそうです
-
->このGPU版ですが、そもそもGPUと言うものがピンと来なかった自分は、「GUIとCUIのこと？」とか
->
->思ってしまい、なぜインストールできないのかを3時間ほど悩んでいました。
->
->諦めて妹のWindowsのコンピュータでも行いましたが、失敗してしまいました。
->
->結果ですが、Macにも妹のWindowsにもNVIDIA製のGPUが存在しないということで、この章は諦めました。
 
 
 
@@ -107,39 +74,13 @@ https://repo.continuum.io/archive/
 という流れです。
 
 
-データの収集では、flickrと言う写真がたくさん集まっているサイトから、`urllib`ライブラリを使って写真をダウンロードします
+データの収集では、flickrと言う写真がたくさん集まっているサイトから、
+
+`urllib`ライブラリを使って写真をダウンロードします
 
 > 「クローリング」という
 
 これに関しては、当社でもAPIを頻繁に使用しているので、イメージをすることができました。
-
-ただし、yahooのアカウントが必要とのことなので、用意しておくべきです(米国版)
-
-実際にPythonのコードから写真をダウンロードする際には、ターミナル上での環境を設定する必要があり、
-
-Macでは`source activate [環境名]`と打ち込むことで起動します
-
->また、pythonのコードを書く際に、`from flickrapi import FlickrAPI`などと書かれて、
->
->「全くRubyと違うやん！」とか、コードの最後に`end`が存在しなかったり、Rubyと文法が全く違う
->
->ことに大きく驚いた記憶があります
-
-> PythonとRubyは似た者同士とは言われていますが、しっかりと文法も勉強しないといけないですね。
-
-実際に書かれたコードの訳をすると、
-
-1. APIキーの取得
-
-1. 保存フォルダの指定
-
-1. 写真のみをAPIから取得し、フォルダに保存する(クローリング)
-
-と言う流れです
-
-その後、クローリングした写真の中で、関係のない写真を削除することでモデルを作成する際の精度を向上することを目指します
-
-> `download.py`
 
 
 
@@ -154,24 +95,6 @@ pillowと呼ばれるpythonの画像を扱うライブラリを使用して、
 * numpy：配列を扱う
 
 * scikit-leran：クロスバリデーション(データを分離して学習と評価を行う)
-
-```python
-# TensorFlowが扱いやすい形
-X = np.array(X)
-Y = np.array(Y)
-```
-
-* JupiterNotebook：ブラウザ上でコードを実行できる
-
-  => AnacondaNavigatorですでにある
-
-  => `.ipynb`がJupiterNotebookで表示される拡張子
-
-* `np.save`：numpyで学習したデータをファイルで保存する
-
-> `gen_data.py`
-
-> `animal.npy`：学習したデータ
 
 
 
@@ -205,10 +128,6 @@ Y = np.array(Y)
 
   => `[0,1,2]`を`[1,0,0]`、`[0,1,0]`、`[0,0,1]`に変更する
 
-  ```python
-  np_utils.to_categorical
-  ```
-
 * このURLにあるコードを参考にした
 
 https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py
@@ -219,15 +138,7 @@ https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py
 
 * トレーニング時の最適なアルゴリズム
 
-  ```python
-  keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
-  ```
-
 * 損失関数：正解と推定値の誤差
-
-  ```python
-  model.compile(loss='categorical_crossentropy',optimizer=opt,metrics=['accuracy'])
-  ```
 
 * モデルの結果を、`model.save`で、`.h5`という拡張子で保存する
 
@@ -249,8 +160,6 @@ https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py
 
 * 推定を行う(`predict.py` 引数に`画像ファイル名`)
 
-
-
 1. パッケージのインポート
 
 1. 変数の初期化
@@ -270,7 +179,3 @@ https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py
 * Flaskのインストールは、pipで行う
 
 * `werkzeug.utils`：ファイルをチェックする関数(`secure_filename`)、Flaskのモジュール
-
-```
-animal_cnn.py
-```
