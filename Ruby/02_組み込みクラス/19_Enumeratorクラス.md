@@ -11,7 +11,7 @@
 
 * [外部イテレータ](#3外部イテレータ)
 
-* [Enumerator::Lazy](#4Enumerator::Lazy)
+* [Enumerator・Lazy](#4EnumeratorLazy)
 
 * [ジェネレータ](#5ジェネレータ)
 
@@ -270,7 +270,7 @@ Charlie (28)
 
 
 
-## 4.Enumerator::Lazy
+## 4.Enumerator・Lazy
 
 * 繰り返し処理の実行を遅延させることができる
 

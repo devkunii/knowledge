@@ -202,7 +202,7 @@ RangeError: -1 out of char range
 
 * どちらも基本的に同じなので、`Fixnum`クラスをここでは扱う
 
-***
+
 
 ### 数値の剰余
 

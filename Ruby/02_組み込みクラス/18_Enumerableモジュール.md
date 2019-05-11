@@ -15,7 +15,7 @@
 
 * [reverse_eachメソッド](#5reverse_eachメソッド)
 
-* [all?・any?・none?・one?・member?・include?メソッド](#6all?any?none?one?member?include?メソッド)
+* [all?・any?・none?・one?・member?・include?メソッド](#6allanynoneonememberincludeメソッド)
 
 * [find・find_index・selectなどのメソッド](#7findfind_indexselectなどのメソッド)
 

@@ -5,7 +5,7 @@
 
 * [Comparableモジュールとは](#0Comparableモジュールとは)
 
-* [between?メソッド](#1between?メソッド)
+* [between?メソッド](#1betweenメソッド)
 
 
 
