@@ -1,9 +1,33 @@
-3-10.`ブロック`と`Proc`
-=====================
+10 ブロックとProc
+================
+
+## 目次
+
+* [ブロックとは](#ブロックとは)
+
+* [ブロックの基本](#3-10-1.ブロックの基本)
+
+* [ブロックのフォーマットと判定](#3-10-2.ブロックのフォーマットと判定)
+
+* [Proc](#3-10-3.Proc)
+
+* [lambda](#3-10-4.lambda)
+
+* [ブロックを受けるメソッド](#3-10-5.ブロックを受けるメソッド)
+
+* [スレッド](#3-10-6.スレッド)
+
+* [ファイバ](#3-10-7.ファイバ)
+
+
+
+## ブロックとは
 
 * 特定のリテラルに依存しない
 
 * クロージャに相当
+
+
 
 ## 3-10-1.ブロックの基本
 
@@ -27,7 +51,7 @@
 
 * このブロックは2を返す。メソッド`func`では **ブロックの実行結果** + **引数の合計** より、3が返される
 
-***
+
 
 ### スコープが作成されるブロック
 
@@ -50,7 +74,7 @@
 NameError: undefined local variable or method ｀x｀ for main:Object
 ```
 
-***
+
 
 ### クロージャとしてのブロック
 
@@ -79,9 +103,9 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 
 * このような対応付けは、`束縛`という。このような処理の生成時の環境を束縛するものを`クロージャ`という
 
-  →メソッドの内部から外部の変数を参照できないRubyでは、重要
+  > メソッドの内部から外部の変数を参照できないRubyでは、重要
 
-***
+
 
 ## 3-10-2.ブロックのフォーマットと判定
 
@@ -101,13 +125,13 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 
 1. `func`に1と2を渡す
 
-2. `func`の内部では、第1引数の値1とブロックの実行結果を合計
+1. `func`の内部では、第1引数の値1とブロックの実行結果を合計
 
-3. `yield`はブロック引数(2と3)の値を合計して、5を返す
+1. `yield`はブロック引数(2と3)の値を合計して、5を返す
 
-4. **第一引数** + **ブロックの実行結果** より、実行結果は6となる
+1. **第一引数** + **ブロックの実行結果** より、実行結果は6となる
 
-***
+
 
 ### ブロックの判定
 
@@ -129,9 +153,9 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 => 2
 ```
 
-***
 
-## 3-10-3.`Proc`
+
+## 3-10-3.Proc
 
 * ブロックをオブジェクトとして扱う際に使用
 
@@ -147,7 +171,7 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 => 1
 ```
 
-***
+
 
 ### Procオブジェクトの生成
 
@@ -155,7 +179,7 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 
 * Procでは、処理自体を生成して遅延評価することができる
 
-  →初期値や現在の値の管理から解放されている
+  > 初期値や現在の値の管理から解放されている
 
 ```ruby
 >> def get_counter start
@@ -176,7 +200,7 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 => 5
 ```
 
-***
+
 
 ### Procとブロック
 
@@ -206,19 +230,23 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 => 3
 ```
 
-***
 
-## 3-10-4.`lambda`
 
-`Proc.new`、`proc`とは別の書き方として`lambda`がある
+## 3-10-4.lambda
 
-`Proc`オブジェクトを生成するが、`lambda`で作成した`Proc`の方がメソッドの動きに近い
+* `Proc.new`、`proc`とは別の書き方として`lambda`がある
+
+* `Proc`オブジェクトを生成するが、`lambda`で作成した`Proc`の方がメソッドの動きに近い
+
+
 
 ### 特徴
 
 1. 引数のチェックが厳密になる
 
 1. ブロックから値を返す時に`return`を使える
+
+
 
 ### 基本
 
@@ -231,6 +259,8 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 1
 => 1
 ```
+
+
 
 ### リターン
 
@@ -262,6 +292,8 @@ NameError: undefined local variable or method ｀x｀ for main:Object
 => 2
 ```
 
+
+
 ### 引数
 
 * `proc`：余分な実引数を無視するか、実引数が足りない場合は`nil`を返す
@@ -283,7 +315,7 @@ nil
 ArgumentError: wrong number of arguments (given 1, expected 2)
 ```
 
-***
+
 
 ## 3-10-5.ブロックを受けるメソッド
 
@@ -291,7 +323,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 
 * 代わりに、ブロックを受けるメソッドが使われる
 
-***
+
 
 ### 配列の`each`メソッド
 
@@ -307,7 +339,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => [1, 2, 3]
 ```
 
-***
+
 
 ### 配列のインデックスを指定する`each_with_index`メソッド
 
@@ -323,7 +355,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => [3, 4, 5]
 ```
 
-***
+
 
 ### ハッシュの`each`メソッド
 
@@ -338,7 +370,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => {:a=>1, :b=>2}
 ```
 
-***
+
 
 ### キーのみ、値のみを出力するeachメソッド
 
@@ -364,7 +396,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => {:a=>1, :b=>2}
 ```
 
-***
+
 
 ### 範囲オブジェクトの`each`メソッド
 
@@ -382,7 +414,7 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => "a".."e"
 ```
 
-***
+
 
 ### 範囲を指定したループ・回数を指定したループ
 
@@ -424,13 +456,19 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 => 4
 ```
 
-***
+
 
 ## 3-10-6.スレッド
 
-`Thread`クラスを用いて、マルチスレッドのプログラムを書くことができる
+* `Thread`クラスを用いて、マルチスレッドのプログラムを書くことができる
 
-※マルチスレッド・・・一つのコンピュータプログラムを実行する際に、複数の処理の流れを並行して進めること。 また、そのような複数の処理の流れ。
+> ### マルチスレッド
+>
+> 一つのコンピュータプログラムを実行する際に、複数の処理の流れを並行して進めること
+>
+> また、そのような複数の処理の流れ。
+
+
 
 ### スレッドのサンプルコード
 
@@ -456,7 +494,9 @@ ArgumentError: wrong number of arguments (given 1, expected 2)
 
 ### スレッドの生成
 
-* `new`、`start`、`fork`：スレッドの生成を行うことができる。これらのメソッドで指定した引数は、ブロックの引数で受けることができる
+* `new`、`start`、`fork`：スレッドの生成を行うことができる。
+
+  * これらのメソッドで指定した引数は、ブロックの引数で受けることができる
 
 ```ruby
 >> 3.times do |i|
@@ -473,17 +513,21 @@ sleep 1
 => 1
 ```
 
-***
+
 
 ## 3-10-7.ファイバ
 
-スレッドと同様に複数のタスクを切り替え、並行処理をする
+* スレッドと同様に複数のタスクを切り替え、並行処理をする
 
 ### 特徴
 
 * ある処理を途中まで実行して、その後任意のタイミングで前回の続きから処理を行う」ことが可能になる
 
-* スレッドは処理しているタスクの切り替えをOSや仮想マシンが行うのに対して、ファイバは切り替えのタイミングを開発者がプログラム内で明示的に記述する
+* スレッドは処理しているタスクの切り替えをOSや仮想マシンが行うのに対して
+
+* ファイバは切り替えのタイミングを開発者がプログラム内で明示的に記述する
+
+
 
 ### ファイバの生成
 
@@ -529,7 +573,9 @@ FiberError: dead fiber called
 * 最後には実行するものがないため、`nil`が出力され、それ以上`resume`を呼び出すと例外発生
 
 
-|  回数   |   日付   |
-|--------|----------|
-|  初版   |2018/08/19|
-| 第二版  |2018/10/04|
+
+| 回数   | 日付       |
+| ------ | ---------- |
+| 初版   | 2018/08/19 |
+| 第二版 | 2018/10/04 |
+| 第三版 | 2019/05/11 |
