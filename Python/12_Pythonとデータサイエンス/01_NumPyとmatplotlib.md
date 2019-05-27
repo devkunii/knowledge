@@ -33,7 +33,7 @@
 
   * `Chainer`・`TensorFlow`：ディープラーニングフレームワーク
 
-![データサイエンスとPythonのエコシステム](./images/データサイエンスとPythonのエコシステム.png)
+![データサイエンスとPythonのエコシステム](./images/データサイエンスとPythonのエコシステム.png)
 
 
 
