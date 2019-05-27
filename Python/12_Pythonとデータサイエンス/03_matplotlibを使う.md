@@ -22,7 +22,7 @@ s = np.sin(np.pi*np.arange(0.0, 2.0, 0.01))
 t = plt.plot(s)
 ```
 
-![sinのグラフ](./images/sinのグラフ.png)
+![sinのグラフ](./images/sinのグラフ.png)
 
 * 2つのarrayを与えると、2次元の点になる
 

@@ -33,7 +33,7 @@
 
   * `Chainer`・`TensorFlow`：ディープラーニングフレームワーク
 
-![データサイエンスとPythonのエコシステム](./images/データサイエンスとPythonのエコシステム.png)
+![データサイエンスとPythonのエコシステム](./images/データサイエンスとPythonのエコシステム.png)
 
 
 
@@ -168,7 +168,7 @@ import matplotlib.pyplot as plt
 h = plt.hist(reactions_in_sec)
 ```
 
-![ヒストグラム](./images/ヒストグラム.png)
+![ヒストグラム](./images/ヒストグラム.png)
 
 
 
