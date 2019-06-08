@@ -84,3 +84,145 @@
 
 
 ### 実際の例
+
+* `scikit-image`から取得した猫の画像を用いて、水平方向と垂直方向の勾配を示す
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+from skimage import data, color
+
+### 画像をロードしてグレースケールに変換する
+image = color.rgb2gray(data.chelsea())
+
+# 水平方向の勾配を中心化した1次元フィルタ（centered 1D filter）を用いて算出する。
+# 具体的には境界に位置しないピクセルをその左右に隣接するピクセル値の差で置き換えている。
+# 画像両端のピクセルの勾配を0とする。
+gx = np.empty(image.shape, dtype=np.double)
+gx[:, 0] = 0
+gx[:, -1] = 0
+gx[:, 1:-1] = image[:, :-2] - image[:, 2:]
+
+# 垂直方向の勾配も同様に算出する
+gy = np.empty(image.shape, dtype=np.double)
+gy[0, :] = 0
+gy[-1, :] = 0
+gy[1:-1, :] = image[:-2, :] - image[2:, :]
+
+# Matplotlibのおまじない
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(5, 9), sharex=True, sharey=True)
+
+ax1.axis('off')
+ax1.imshow(image, cmap=plt.cm.gray)
+ax1.set_title('Original image')
+ax1.set_adjustable('box', share=True)
+
+ax2.axis('off')
+ax2.imshow(gx, cmap=plt.cm.gray)
+ax2.set_title('Horizontal gradients')
+ax2.set_adjustable('box', share=True)
+
+ax3.axis('off')
+ax3.imshow(gy, cmap=plt.cm.gray)
+ax3.set_title('Vertical gradients')
+ax3.set_adjustable('box', share=True)
+
+plt.show()
+```
+
+![猫の画像における勾配.png](./images/猫の画像における勾配.png)
+
+* `水平方向の勾配`：猫の目の中にある垂直のパターンが強調される
+
+* `垂直方向の勾配`：髭などの水平方向のパターンが強調される
+
+
+
+## 2.勾配方向ヒストグラム
+
+* 画像勾配は、画像内の各ピクセル近傍における変化を捉える
+
+* 私達の目は、ある領域における連続したパターンを捉えている
+
+  * 近傍に存在する画像勾配をまとめあげて、全体的なパターンとして認識させる
+
+* `SIFT`、`HOG`は、画像の勾配の分布を見ている
+
+  * (正規化した形で)勾配ベクトルのヒストグラムを算出、各ビン内に含まれるデータ点の数をカウント
+
+  > これは、(正規化されていない)`経験分布`と呼ばれる
+  >
+  > $`l^1`$ ノルムと呼ばれる
+
+* 画像勾配はベクトルなので、ヒストグラムを算出する際に`方向`と`大きさ`に注意する
+
+  > 画像勾配を、方向角 $`\theta`$ でビン化、`大きさ`で重み付け
+
+  1. $`0^\circ`$ 〜 $`360^\circ`$ を、均等な幅のビンに分割
+
+  1. 各ピクセルにおいて、方向角 $`\theta`$ に応じて、重み $`w`$ を加える
+
+  1. ヒストグラムを正規化
+
+  > $`w`$ ：勾配の大きさ、関連情報(パッチの中心からの距離の逆数)
+
+  ![8ビンの勾配方向ヒストグラム](./images/8ビンの勾配方向ヒストグラム.png)
+
+
+
+### 2.1.適正なビンの数および範囲はどのように決めるべきか
+
+* ビンの数
+
+  * 多い：勾配方向に関してより緻密な量子化が可能
+
+  > 元の勾配についてより多くの情報を保持
+
+  * ただし、多すぎると学習データに対して過学習となる
+
+* ビンの範囲
+
+  * $`0^\circ〜180^\circ`$ ：9つのビンに分割(HOG)
+
+  * $`0^\circ〜360^\circ`$ ：8つのビンに分割(SIFT)
+
+
+
+### 2.2.どのような重み付け関数を用いるべきか
+
+* `SIFT`、`HOG`ともに勾配の大きさをそのまま利用していた
+
+  * 加えて、`ガウシアン距離関数`を用いた(バッチの中心からの距離に応じてその周辺部の勾配の重みを下げる)
+
+  $`
+  \begin{eqnarray}
+  \frac{1}{2 \pi \sigma^2} \exp^{-\frac{\|p-p_0\|^2}{2 \sigma^2}}
+  \end{eqnarray}
+  `$
+`
+  > $`p`$ ：各勾配に対応したピクセルの位置、$`p_0`$ ：画像パッチの中心位置、$`\sigma`$ ：ガウシアンの幅(パッチの半径の半分の値)
+
+* `SIFT`は、1つの勾配の重みを隣接する方向ビンに広げる`補間トリック`を用いている
+
+  1. ルートとなるビン(勾配を計算しているビン)： $`1`$ の重み
+
+  1. 隣接するビンには： $`1-d`$ の重み
+
+* `SIFT`において、各勾配に与えられる重み
+
+  * $`\bigtriangledown p`$ ：ビン $`b`$ における、各ピクセルの勾配
+
+  * $`w_b`$ ：補間された $`b`$ の重み
+
+  * $`\sigma`$ ：中心 $`p`$ からの`ガウシアン距離`
+
+  $`
+  \begin{eqnarray}
+  w(\bigtriangledown p, b) = w_b \sigma \| \bigtriangledown_p \|
+  \end{eqnarray}
+  `$
+`
+
+
+
+### 2.3.近傍はどのように定義すべきか・画像内でどのように位置させるか
