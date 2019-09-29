@@ -1,0 +1,4 @@
+.ipynb_checkpoints
+cache
+*.h5
+.DS_Store
