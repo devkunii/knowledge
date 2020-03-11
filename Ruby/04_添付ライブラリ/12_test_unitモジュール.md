@@ -1,9 +1,25 @@
-6-8.開発ツール
-============
+12 test/unitモジュール
+====================
+
+## 目次
+
+* [開発ツールとは](#0開発ツールとは)
+
+* [test/unitとは](#1testunitとは)
+
+* [test/unitの使い方](#2testunitの使い方)
+
+* [test/unitの検証メソッド](#3testunitの検証メソッド)
+
+
+
+## 0.開発ツールとは
 
 * Rubyのデバッガ、プロファイラ、自動テストなどのツールは、添付ライブラリの形で提供される
 
-* 他のライブラリのようにソースに組み込んで利用するものもあれば、利用したい時だけRubyのコマンドラインオプションに組み込んで呼び出すこともできる
+* 他のライブラリのようにソースに組み込んで利用するものもあれば
+
+  * 利用したい時だけRubyのコマンドラインオプションに組み込んで呼び出すこともできる
 
   例：rubyプログラムのデバッグを行うdebugライブラリは、以下のコマンドで実行する
 
@@ -11,19 +27,23 @@
   ruby -rdebug foo.rb
   ```
 
-## 6-8-1.test/unit
+
+
+## 1.test/unitとは
 
 * Ruby2.2.0以降では、RubyGemsからインストールして使うように変更
 
 * Rubyプログラムのユニットテストを自動で行うためのライブラリ
 
-  →ユニットテスト：メソッドなどの細かい単位でプログラムを実行し、正しく動作するかを確認する作業
+  > ユニットテスト：メソッドなどの細かい単位でプログラムを実行し、正しく動作するかを確認する作業
 
 * テスト対象のプログラムとは別に、テストケースと呼ばれるプログラムを作成し、その中で利用する
 
+
+
 ### 成功するテストの例
 
-#### テスト対象のプログラム(6-8.foo.rb)
+* テスト対象のプログラム(6-8.foo.rb)
 
 ```ruby
 class Foo
@@ -37,11 +57,11 @@ class Foo
 end
 ```
 
-#### テストケースサンプル(6-8.test_foo.rb)
+* テストケースサンプル(6-8.test_foo.rb)
 
-* test/unitは、このテストケースの中で`require`する
+  * test/unitは、このテストケースの中で`require`する
 
-* 一般的に、テスト対象のプログラムと分離して作成するので、テストケースの中でテスト対象のプログラムを呼び出せるように`require`しておく
+  * 一般的に、テスト対象のプログラムと分離して作成するので、テストケースの中でテスト対象のプログラムを呼び出せるように`require`しておく
 
 ```ruby
 require 'test/unit'
@@ -65,7 +85,7 @@ class TestFoo < Test::Unit::TestCase
 end
 ```
 
-#### 実行結果
+### 実行結果
 
 `6-8.foo.rb`を`6-8.test_foo.rb`から`require`できるようにカレントディレクトリをロードするパスに加えて実行
 
@@ -81,6 +101,8 @@ Finished in 0.000776 seconds.
 ----------------------------------------------------------------------------------------------
 2577.32 tests/s, 2577.32 assertions/s
 ```
+
+
 
 ### 失敗するテストの例
 
@@ -152,53 +174,62 @@ Finished in 0.041241 seconds.
 48.50 tests/s, 24.25 assertions/s
 ```
 
-***
 
-### test/unitの使い方
+
+## 2.testunitの使い方
 
 * test/unitを`require`すると、プログラム時にプログラム内の`Test::Unit::TestCase`と継承にあるクラスを実行する
 
 * デフォルトの動作では、プログラム内の該当する全てのクラスのテストケースを実行するが、
 
-  テスト実行時に、オプション`-t`(testcase)で明示的に実行するテストを指定することもできる
+  * テスト実行時に、オプション`-t`(testcase)で明示的に実行するテストを指定することもできる
 
 * テストメソッドを定義するには、テストケースの前に`test_`を付けて定義する
 
-  →テストメソッド内では、検証メソッドを利用してテストコードを書くことができる
+  * テストメソッド内では、検証メソッドを利用してテストコードを書くことができる
 
 * `setup`：テストメソッドを実行する前に必ず呼び出される。各テストメソッドで共通で実行する初期化処理などを記述する
 
 * `teardown`：テストメソッドを実行した後に必ず呼び出される。各テストメソッドで共通で実行する終了時処理などを記述する
 
-### test/unitの検証メソッド
 
-※検証メソッドの共通の引数である`message`は、失敗時に表示されるメッセージを定義できる
 
-#### `assert`
+## 3.test/unitの検証メソッド
 
-booleanがtrueであれば、検証が成功する
+* 検証メソッドの共通の引数である`message`は、失敗時に表示されるメッセージを定義できる
+
+
+
+### `assert`
+
+* booleanがtrueであれば、検証が成功する
 
 ```ruby
 assert(boolean, message = nil)
 ```
 
-#### `assert_equal`/`assert_not_equal`
+
+
+### `assert_equal`/`assert_not_equal`
 
 * `assert_equal`：`expected == actual`の時に検証が成功する
 
 * `assert_not_equal`：`expected != actual`の時に検証が成功する
 
-※注意
-* `expected`：期待する値
-
-* `actual`：検証対象の値
+>注意
+>
+> * `expected`：期待する値
+>
+> * `actual`：検証対象の値
 
 ```ruby
 assert_equal(expected, actual, message = nil)
 assert_not_equal(expected, actual, message = nil)
 ```
 
-#### `assert_instance_of`
+
+
+### `assert_instance_of`
 
 * 検証対象のobjectが`klass`クラスのインスタンスであるかどうかを検証する
 
@@ -208,7 +239,9 @@ assert_not_equal(expected, actual, message = nil)
 assert_instance_of(klass, object, message = "")
 ```
 
-#### `assert_nil`/`assert_not_nil`
+
+
+### `assert_nil`/`assert_not_nil`
 
 * `assert_nil`：objectがnilであれば検証が成功する
 
@@ -219,19 +252,23 @@ assert_nil(object, message = "")
 assert_not_nil(object, message = "")
 ```
 
-#### `assert_kind_of`
 
-検証対象のobjectがklassクラスと継承関係にあるか検証する
+
+### `assert_kind_of`
+
+* 検証対象のobjectがklassクラスと継承関係にあるか検証する
 
 * 例)"abc"：String、Enumerable、Comparable、Object、Kernelのいずれかを指定すれば検証可能
 
-  →`assert_instance_of`ではStringでのみ検証可能
+  * `assert_instance_of`ではStringでのみ検証可能
 
 ```ruby
 assert_kind_of(klass, object, message = "")
 ```
 
-#### `assert_match`/`assert_not_match`
+
+
+### `assert_match`/`assert_not_match`
 
 * patternに指定した正規表現が、stringにマッチするかどうかを検証
 
@@ -244,7 +281,9 @@ assert_match(pattern, string, message = "")
 assert_not_match(pattern, string, message = "")
 ```
 
-#### `assert_raise`/`assert_nothing_raised`
+
+
+### `assert_raise`/`assert_nothing_raised`
 
 * `assert_raise`：ブロック内の処理中に引数`expected_exception_klass`の例外を`raise`した時に検証が成功する
 
@@ -255,7 +294,7 @@ assert_raise(expected_exception_klass, message = "") { ... }
 assert_nothing_raised(*args) { ... }
 ```
 
-※記述例
+> 記述例
 
 ```ruby
 def test_assert_raise
@@ -265,7 +304,9 @@ def test_assert_raise
 end
 ```
 
-#### `flunk`
+
+
+### `flunk`
 
 * 常に検証が失敗するテストケースを作ることができる
 
@@ -277,148 +318,17 @@ end
 flunk(message = "Flunked")
 ```
 
-#### `assert_throws`/`assert_nothing_thrown`
+
+
+### `assert_throws`/`assert_nothing_thrown`
 
 * `assert_throws`：`assert_raise`メソッドの`throw`版で、ブロック内の処理中に`expected_symbol`がthrowされた時に検証が成功
 
 * `assert_nothing_thrown`：何もthrowされなかった時に検証が成功する
 
-***
-
-## 6-8-2.RDoc
-
-* Rdoc(Ruby Document System)
-
-* ソースコードからHTML形式のAPI仕様書を出力するコマンドツール
-
-* ソースコードを解析して、クラス、モジュール、メソッドの定義やinclude、requireの関係を抽出したものを、直前のコメントと併合してHTMLに出力
-
-### RDocの利用例
-
-* コメントは「#」から始まる形式でも、`=begin〜=end`で囲んだ式でも利用できる
-
-```ruby
-# この行はRDocによって読み込まれます
-def comment
-end
-
-=begin
-この行はRDocに読み込まれます
-=end
-def begin_end_comment
-end
-```
-
-### RDocのドキュメント生成
-
-RDocを実行すると、カレントディレクトリ以下にあるファイルを探し、RDocのパーサーに対応したファイルの解析を行う
-
-解析したファイルはHTMLに変換され、docディレクトリ以下に配置される
-
-```ruby
-rdoc
-```
-
-![RDoc_実行](./images/6-8/RDoc_実行.png)
-
-***
-
-### マークアップ
-
-コメントに特殊なマークアップを行うことで、出力されるドキュメントをマークアップすることができる
-
-#### 見出し
-
-* `=`の個数に応じて、見出し行`<h1>`〜`<h6>`に変換される
-
-* `=`が7個以上の場合は、全て`<h6>`になる
-
-```ruby
-# = Head1
-# == Head2
-# === Head3
-# ==== Head4
-# ===== Head5
-# ====== Head6
-```
-
-![見出し](./images/6-8/見出し.png)
-
-#### インライン
-
-* URI形式(http://〜、ftp://〜)で始まる形式の文字列は、自動的にリンクになる
-
-```ruby
-# http://www.ruby-lang.org/
-```
-
-* 文字列をアスタリスク`*`で囲むと、ボールド体で装飾できる
-
-* <b>word</b>でも使用できる
-
-```ruby
-# *word*
-```
-
-* 文字列をアンダースコア`_`で囲むと、イタリック体で装飾できる
-
-* <em>word</em>でも使用できる
-
-```ruby
-# _word_
-```
-
-* 文字列をプラス`+`で囲むと、タイプライター体で装飾できる
-
-* <tt>word</tt>でも使用できる
-
-```ruby
-# +word+
-```
-
-![インライン](./images/6-8/インライン.png)
-
-#### リスト
-
-* 番号なしリスト：アスタリスク`*`またはマイナス`-`で文字列を開始すると、番号なしリストを作ることができる
-
-  ```ruby
-  # * リスト1
-  # * リスト2
-  # * リスト3
-
-  # - リスト1
-  # - リスト2
-  # - リスト3
-  ```
-
-* 番号付きリスト：数字+ピリオド`.`で文字列を開始すると、番号付きリストを作ることができる
-
-  ```ruby
-  # 1. リスト1
-  # 2. リスト2
-  # 3. リスト3
-  ```
-
-* ラベル付きリスト：大カッコ`[]`で囲んだ文字列で開始すると、ラベル付きリストを作成することができる
-
-  ```ruby
-  # [list1] リスト1
-  # [list2] リスト2
-  # [list3] リスト3
-  ```
-
-  コロン`:`で区切っても、ラベル付きリストを作成できる。コロンの右の文字は左揃えになる
-
-  ```ruby
-  # list1:: リスト1
-  # list2:: リスト2
-  # list3:: リスト3
-  ```
-
-![リスト](./images/6-8/リスト.png)
 
 
-| 版 |  年/月/日 |
-|---|----------|
-|初版|2018/10/21|
+| 版     | 年/月/日   |
+| ------ | ---------- |
+| 初版   | 2018/10/21 |
+| 第二版 | 2019/05/13 |

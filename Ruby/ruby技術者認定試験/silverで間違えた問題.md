@@ -36,11 +36,6 @@ TypeError: exception class/object expected
 
 ***
 
-### `Hash#to_h`について
-
-Hash#to_hは2次元配列からハッシュを生成します。例えば[[1, "data 1"], [2, "data 2"]].to_hの結果は{1=>"data 1", 2=>"data 2"}になります。
-
-***
 
 ### 次のコードを実行するとどうなりますか
 
@@ -71,23 +66,6 @@ Hash#to_hは2次元配列からハッシュを生成します。例えば[[1, "d
 * `&:odd?`：`Integer#odd?`メソッド(数値が奇数か判定)を、ブロックとして渡す。
 
 * `(1..5).partition(&:odd?)`：1から5の間で、奇数の配列を分割
-
-***
-
-### 次のコードを実行するとどうなりますか
-
-```ruby
->> str = "1;2:3;4"
-=> "1;2:3;4"
->> p str.split(";|:")
-["1;2:3;4"]
-=> ["1;2:3;4"]
-
-# 例
->> p str.split(/;|:/)
-["1", "2", "3", "4"]
-=> ["1", "2", "3", "4"]
-```
 
 ***
 
@@ -123,50 +101,6 @@ n1: 5, n2: [6, 7], n3: 8
 => nil
 ```
 
-***
-
-### 次のコードを実行するとどうなりますか
-
-```ruby
->> str = "Liberty Fish   \r\n"
-=> "Liberty Fish   \r\n"
->> str.strip!
-=> "Liberty Fish"
->> p str
-"Liberty Fish"
-=> "Liberty Fish"
-```
-
-***
-
-#### メソッド名	説明
-
-* `strip`：文字列の先頭と末尾の空白文字(\t\r\n\f\v)を取り除きます。
-
-* `chomp`：末尾から改行コードを取り除きます。
-
-* `chop`：末尾の文字を取り除きます。ただし、文字列の末尾が"\r\n"であれば、2文字とも取り除きます。
-
-```ruby
->> str = "Liberty Fish   \r\n"
-=> "Liberty Fish   \r\n"
-
-# chopメソッド
->> str.chop
-=> "Liberty Fish   "
->> str.chop.chop.chop.chop.chop
-=> "Liberty Fis"
-
-# chompメソッド
->> str.chomp
-=> "Liberty Fish   "
-
-# stripメソッド
->> str.strip
-=> "Liberty Fish"
-```
-
-***
 
 ### 次のコードを実行するとどうなりますか
 
@@ -218,45 +152,6 @@ Array
 => {:a=>100, :b=>200}
 ```
 
-***
-
-### Hashクラスについて適切な記述を選びなさい（複数選択）
-
-* `member?`：ハッシュにキーが存在する場合に`true`(`has_key?`、`include?`、`key?`メソッドも同様)
-
-* `to_a`： **キー** と **値** の組み合わせの配列の配列を生成する
-
-* `update`：自分自身と引数で指定されたハッシュを統合する(破壊的メソッド)
-
-* `clear`：ハッシュを空にする(破壊的メソッド)
-
-```ruby
->> hash = {"apple" => "grate", "banana" => "ole", "orange" => "juice"}
-=> {"apple"=>"grate", "banana"=>"ole", "orange"=>"juice"}
-
-# member?メソッド
->> p hash.member?("apple")
-true
-=> true
-
-# to_aメソッド
->> p hash.to_a
-[["apple", "grate"], ["banana", "ole"], ["orange", "juice"]]
-=> [["apple", "grate"], ["banana", "ole"], ["orange", "juice"]]
-
-# updateメソッド
->> hash.update({"grape" => "juice"})
-=> {"apple"=>"grate", "banana"=>"ole", "orange"=>"juice", "grape"=>"juice"}
-
-# clearメソッド
->> p hash.clear
-{}
-=> {}
->> hash
-=> {}
-```
-
-***
 
 ### 以下のコードを実行するとどうなりますか
 
@@ -271,21 +166,6 @@ Rubyではメソッド内で定数を定義することができません。
 >>   puts Y
 >> end
 SyntaxError: (irb):153: dynamic constant assignment
-```
-
-***
-
-### 次のコードを実行するとどうなりますか
-
-`Hash#invert`は **キー** と **値** を入れ替えます。
-入れ替えの結果キーが重複した場合は、後に定義された方が優先されます。
-
-```ruby
->> h = {a: 100, b: 100}
-=> {:a=>100, :b=>100}
->> puts h.invert
-{100=>:b}
-=> nil
 ```
 
 ***
@@ -309,41 +189,6 @@ D
 
 ***
 
-### 次のコードを実行するとどうなりますか
-
-```ruby
-# 問題
-s = <<'EOF'
-Hello,
-Ruby
-EOF
-'EOF'
-
-p s
-
-# 解答
->> s = <<'EOF'
-Hello,
-Ruby
-EOF
-=> "Hello,\nRuby\n"
->> 'EOF'
-=> "EOF"
->>
-?> p s
-"Hello,\nRuby\n"
-=> "Hello,\nRuby\n"
-```
-
-#### 識別子の開始ラベルによってヒアドキュメントの解釈の方法が異なります。
-
-* 開始ラベル：説明
-* `"識別子"`：式展開が有効
-* `識別子`：式展開が有効。ダブルクオートと同じ結果
-* `'識別子'`：式展開できない(シングルクオート)
-* ``識別子``：コマンド出力(バッククオート)
-
-***
 
 ### 次のプログラムを実行するとどうなりますか
 
@@ -407,39 +252,7 @@ NoMethodError: undefined method ｀append｀ for "Ruby":String
 => 8
 ```
 
-***
 
-### 次のプログラムの期待値を得られるように正しいメソッドを選択肢から選んでください。
-
-* `key`：引数を１つ取り、キーを返す
-
-* `values`：ハッシュの全ての値の配列を返す
-
-* `values_at`：指定された **キー** に対応する **値** を配列で返す。可変長なので、引数を何個も取れる
-
-```ruby
->> hash = {price: 100, order_code: 200, order_date: "2018/09/20", tax: 0.8}
-=> {:price=>100, :order_code=>200, :order_date=>"2018/09/20", :tax=>0.8}
-
-# keyメソッド
->> p hash.key(:price, :tax)
-ArgumentError: wrong number of arguments (given 2, expected 1)
-
-# valuesメソッド
->> p hash.values(:price, :tax)
-ArgumentError: wrong number of arguments (given 2, expected 0)
-
-# values_atメソッド
->> p hash.values_at(:price, :tax)
-[100, 0.8]
-=> [100, 0.8]
-
-# []メソッド
->> p hash.[](:price, :tax)
-ArgumentError: wrong number of arguments (given 2, expected 1)
-```
-
-***
 
 ### 次のプログラムを実行するとどうなりますか
 
@@ -826,29 +639,6 @@ true
 => true
 ```
 
-***
-
-### 次のコードを実行するとどうなりますか
-
-`str.chop`は末尾の文字を取り除きます。ただし、文字列の末尾が`"\r\n"`であれば、2文字とも取り除きます。
-破壊的メソッドではないので、`self`は影響を受けません。
-
-```ruby
->> str = "Liberty Fish   \r\n"
-=> "Liberty Fish   \r\n"
->> str.chop
-=> "Liberty Fish   "
->> p str
-"Liberty Fish   \r\n"
-=> "Liberty Fish   \r\n"
->> str.chop!
-=> "Liberty Fish   "
->> p str
-"Liberty Fish   "
-=> "Liberty Fish   "
-```
-
-***
 
 ### 次のコードを実行するとどうなりますか
 
@@ -943,68 +733,8 @@ end
 
 ***
 
-### 次のコードを実行するとどうなりますか
 
-ヒアドキュメントにインデントを加える場合は、`<<-`識別子とします。
-インデントを取り除くためには、Ruby 2.3から追加された`<<~`識別子を用います。
 
-```ruby
->> s = <<-EOF
-      Hello,
-      Ruby
-      EOF
-=> "      Hello,\n      Ruby\n"
->>
-?> p s
-"      Hello,\n      Ruby\n"
-=> "      Hello,\n      Ruby\n"
-
-# 空白の対処法
->> s = <<~EOF
-      Hello,
-      Ruby
-      EOF
-=> "Hello,\nRuby\n"
-```
-
-***
-
-### 次のプログラムの説明で正しい選択肢を選んでください。
-
-ヒアドキュメントでは改行、スペースは削除されません。
-`EOS`と`"EOS"`はヒアドキュメント内で式展開を行います。
-識別子をシングルクォートで`'EOS'`囲う場合は式展開は行われず、全て文字列として扱われます。
-
-```ruby
-# 問題
-str = <<EOS
-よりニッチに。よりユニークに。
-  IT市場はもちろん、ヘルスケア・医療・介護など
-    次世代市場における企業や生活者のユーザビリティを向上させる
-      サービス、ソフトウェアを開発しています。
-    #{1 + 1}
-EOS
-puts str
-
-# 解答
->> str = <<EOS
-よりニッチに。よりユニークに。
-  IT市場はもちろん、ヘルスケア・医療・介護など
-    次世代市場における企業や生活者のユーザビリティを向上させる
-      サービス、ソフトウェアを開発しています。
-    #{1 + 1}
-EOS
-=> "よりニッチに。よりユニークに。\n  IT市場はもちろん、ヘルスケア・医療・介護など\n    次世代市場における企業や生活者のユーザビリティを向上させる\n      サービス、ソフトウェアを開発しています。\n    2\n"
->> puts str
-よりニッチに。よりユニークに。
-  IT市場はもちろん、ヘルスケア・医療・介護など
-    次世代市場における企業や生活者のユーザビリティを向上させる
-      サービス、ソフトウェアを開発しています。
-    2
-=> nil
-```
-
-***
 
 ### 次のプログラムを実行するとどうなりますか
 
@@ -1038,15 +768,6 @@ p chars
 
 ***
 
-### メソッドの定義の確認
-
-```ruby
->> p String.method_defined?(:to_h)
-false
-=> false
-```
-
-***
 
 ### 実行後の textfile.txt 内容になるようにXXXXに適切なコードを選べ
 
@@ -1080,25 +801,6 @@ RECODE 3
 
 * `r+`：読み込み + 書き込みモードで開きます。
 
-***
-
-### Hashクラスについて適切な記述を選びなさい（複数選択）
-
-* `Hash`の初期化は、`{}`、`Hash.new`、`Hash({})`で行う
-
-* `Hash#revert`メソッドは存在しない。`Hash#invert`メソッドは、キーと値を逆にしたハッシュを返す
-
-* `Hash#fetch`メソッドは、与えられた **キー** に対する **値** を返す
-
-```ruby
->> fruits = { "apple" => 100, "orange" => 80, "melon" => 450 }
-=> {"apple"=>100, "orange"=>80, "melon"=>450}
->> puts fruits.fetch("apple")
-100
-=> nil
-```
-
-***
 
 ### 次のコードを実行するとどうなりますか。
 
@@ -1426,37 +1128,6 @@ end
 
 ***
 
-### オーバーライド不可の演算子を選びなさい
-
-以下の演算子以外は全てオーバーライド(再定義)可能
-
-#### オーバーライド不可の演算子
-
-* `::`：クラスやモジュールのネスト
-
-* `&&`：論理積(優先度高)
-
-* `||`：論理和(優先度高)
-
-* `?:`：条件演算子
-
-* `..`：`Range`オブジェクト(以下)
-
-* `...`：`Range`オブジェクト(未満)
-
-* `=`：代入
-
-* `not`：否定(優先度低)
-
-* `and`：論理積(優先度低)
-
-* `or`：論理和(優先度低)
-
-加えて、自己代入演算子
-
-
-***
-
 ### 以下のコードを実行するとどうなりますか
 
 ```ruby
@@ -1575,33 +1246,6 @@ employees.each do |employee| puts employee end
 
 ### 以下のコードを実行するとどうなりますか
 
-```ruby
-s = <<"EOB"
-Hello,
-Ruby
-World.
-EOB
-"EOB"
-p s
-
-# 解答
->> s = <<"EOB"
-Hello,
-Ruby
-World.
-EOB
-=> "Hello,\nRuby\nWorld.\n"
->> "EOB"                      # "EOB"は別に出力される。変数sとは関係ない
-=> "EOB"
->> p s
-"Hello,\nRuby\nWorld.\n"
-=> "Hello,\nRuby\nWorld.\n"
-```
-
-***
-
-### 以下のコードを実行するとどうなりますか
-
 ```
 # data
 abcdef
@@ -1690,16 +1334,6 @@ RuntimeError: failed
 >> puts ("succeeded!")
 succeeded!
 => nil
-```
-
-***
-
-### 以下のコードでは何が出力されますか
-
-```ruby
->> p ?A
-"A"
-=> "A"
 ```
 
 ***
@@ -2006,87 +1640,6 @@ p h
 
 ただし、非破壊メソッドなので元のハッシュは変更しない
 
-***
-
-### 以下の実行結果になるように、`XXXX`に記述する適切なコードを選びなさい
-
-```ruby
-puts File.XXXX ("/", "user", "bin")
-
-# 解答
->> puts File.join("/", "user", "bin")
-/user/bin
-=> nil
-```
-
-#### 解答
-
-`File`クラスの`join`は、`File::SEPARATOR`(ファイルパスのセパレータを保持する定数。値は環境によらず`/`)
-
-を間に入れて引数の文字列を連結したファイルパスを作成する
-
-ただし、前の文字列が`File::SEPARATOR`で終わる場合は、`File::SEPARATOR`を間に入れない
-
-***
-
-### 期待した出力結果になるようにXXXXに適切なコードを選べ
-
-```ruby
-d = Time.new(2015, 1, 5)
-puts d.strftime(XXXX)
-
-# 出力結果
-01/05/15
-
-# 解答
->> d = Time.new(2015, 1, 5)
-=> 2015-01-05 00:00:00 +0900
->> puts d.strftime("%x")
-01/05/15
-=> nil
-```
-
-* `%x`：日付(%m/%d/%y)
-
-* `%m`：月を表す数字(01-12)
-
-* `%M`：分(00-59)
-
-* `%d`：日(01-31)
-
-* `%D`：日付(%m/%d/%y)
-
-* `%y`：西暦の下2桁(00-99)
-
-* `%Y`：西暦を表す数(9999)
-
-
-```ruby
->> d = Time.new(2015, 1, 5)
-=> 2015-01-05 00:00:00 +0900
-
-# "x"
->> puts d.strftime("%x")
-01/05/15
-=> nil
-
-# "%m/%d/%Y"
->> puts d.strftime("%m/%d/%Y")
-01/05/2015
-=> nil
-
-# "%m/%D/%y"
->> puts d.strftime("%m/%D/%y")
-01/01/05/15/15
-=> nil
-
-# "%M/%d/%y"
->> puts d.strftime("%M/%d/%y")
-00/05/15
-=> nil
-```
-
-***
 
 ### 学習マラソンで間違えた問題
 
@@ -2338,16 +1891,6 @@ Timeクラスのオブジェクトに対して「+」メソッドや「-」メ�
 
 ***
 
-### ローカル変数の名前として正しいものをすべて選択してください。
-
-１文字目は`アルファベット小文字`か`_`で始める必要があります。
-
-また、２文字目以降はアルファベットもしくは数字を使用します。
-
-予約語はローカル変数として使用できません
-
-***
-
 ### 以下のコードを実行した出力として正しいものを１つ選択してください。
 
 `Integer#downto(min)`は、引数`min`まで数を１ずつ減らしながら実行されます。
@@ -2378,45 +1921,7 @@ uby on
 => nil
 ```
 
-***
 
-### 以下のコードにおける4行目`io.rewind`について正しい説明を１つ選択してください。
-
-* `rewind`：ファイルポインタを先頭に移動し、`lineno`の値を`0`にする
-
-```ruby
-File.open("foo.txt","r") do |io|
-puts io.gets
- puts io.read
-  io.rewind
-  p lines = io.readlines
-end
-
-# 解答
->> File.open("foo.txt","r") do |io|
-?> puts io.gets
->>  puts io.read
->>   io.rewind
->>   p lines = io.readlines
->> end
-[]
-=> []
-```
-
-***
-
-### 以下のコードを実行したときの出力として適切な物を1つ選択してください。
-
-* `File#join`：定数`FILE::SEPARATOR "/"`を使って文字列を連結します。
-
-```ruby
-p File.join("ruby", "exam","silver")
-
-# 解答
->> p File.join("ruby", "exam","silver")
-"ruby/exam/silver"
-=> "ruby/exam/silver"
-```
 
 ***
 
@@ -2655,14 +2160,6 @@ end
 
 ***
 
-### 次のメソッドでDirクラスのクラスメソッドではないものをすべて選択してください。(2つ選択)
-
-* `Dir.basename`
-
-* `Dir.extname`
-
-***
-
 ###
 
 `String#delete`メソッドでは引数で指定された文字を`self`から取り除きます。
@@ -2857,17 +2354,3 @@ hoge
 5
 => nil
 ```
-
-***
-
-### Silver試験で間違えた問題
-
-* delete(delete_atとの区別がつかなかった)
-
-* transpose
-
-* rescue/ensure
-
-* pop/shiftなどの配列を削除追加するものの破壊的メソッドかどうか
-
-*
