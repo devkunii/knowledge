@@ -60,8 +60,14 @@ MacOS homebrew
   $ git checkout .
   ```
 
+> 参考記事：Homebrewのインストール方法が変わってしまった
+> https://creepfablic.site/2021/03/13/homebrew-python-rebase/
+
+> 間違ってPython関連で`rm /usr/local/bin/`下の内容を消した時の対処法
+> https://qiita.com/hiro_rookie/items/f237c786cc5254de48ad
 
 
-| 版   | 年/月/日   |
-| ---- | ---------- |
-| 初版 | 2019/07/13 |
+| 版     | 年/月/日   |
+| ------ | ---------- |
+| 初版   | 2019/07/13 |
+| 第二版 | 2021/03/29 |
